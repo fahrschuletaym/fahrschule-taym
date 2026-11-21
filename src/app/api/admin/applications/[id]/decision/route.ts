@@ -13,7 +13,8 @@ import {
   Pool,
   type PoolClient,
 } from "pg";
-import { REQUIRED_DOCUMENT_TYPES } from "@/lib/applications/validation";
+import { REQUIRED_DOCUMENT_TYPES, normalizeApplicationLocale } from "@/lib/applications/validation";
+import { enqueueApplicationDecisionEmail, dispatchApplicationDecisionEmail } from "@/lib/applications/email";
 
 /* ============================================================
    FAHRSCHULE TAYM
@@ -37,7 +38,7 @@ import { REQUIRED_DOCUMENT_TYPES } from "@/lib/applications/validation";
    4. Update application status
    5. Insert administrative decision
    6. Insert activity log
-   7. Report that decision email is not configured
+   7. Queue the decision email
    8. Read updated application
    9. Commit
 
@@ -167,6 +168,7 @@ type DatabaseApplicationRow = {
   first_name: string;
   last_name: string;
   email: string;
+  locale: string | null;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -278,13 +280,14 @@ function errorResponse(
 }
 
 function successResponse(
-  application: ApplicationDetail
+  application: ApplicationDetail,
+  notificationStatus: "SENT" | "QUEUED" | "FAILED"
 ): NextResponse {
   return NextResponse.json(
     {
       success: true,
       application,
-      notificationStatus: "NOT_CONFIGURED",
+      notificationStatus,
     },
     {
       status: 200,
@@ -895,6 +898,7 @@ async function lockApplication(
         first_name,
         last_name,
         email,
+        locale,
         created_at,
         updated_at
       FROM license_applications
@@ -1194,15 +1198,6 @@ async function writeActivity(
 }
 
 /* ============================================================
-   14. NOTIFICATION
-
-   The previous outbox references a different application
-   table. Do not claim that an email was queued until an
-   outbox for the candidate application is configured.
-   ============================================================ */
-
-
-/* ============================================================
    15. DECISION TRANSACTION
 
    READ COMMITTED + row locks.
@@ -1380,6 +1375,18 @@ async function processDecision(
     );
 
     /* H. Queue email notification */
+    await enqueueApplicationDecisionEmail({
+      client,
+      applicationId,
+      reference: current.reference,
+      recipient: current.email,
+      firstName: current.first_name,
+      lastName: current.last_name,
+      countryCode: current.country_code as Country,
+      locale: normalizeApplicationLocale(current.locale),
+      decision: input.decision,
+      reason: input.reason,
+    });
 
     /* I. Return updated dossier */
 
@@ -1575,10 +1582,19 @@ export async function POST(
           "APPLICATION_INCOMPLETE"
         );
 
-      case "success":
+      case "success": {
+        let notificationStatus: "SENT" | "QUEUED" | "FAILED" = "QUEUED";
+        try {
+          const delivery = await dispatchApplicationDecisionEmail(applicationId, input.decision);
+          notificationStatus = delivery === "ACCEPTED" ? "SENT" : delivery === "FAILED" ? "FAILED" : "QUEUED";
+        } catch (error) {
+          console.error("[TAYM_ADMIN_APPLICATION_DECISION][EMAIL]", error instanceof Error ? error.name : "UNKNOWN_ERROR");
+        }
         return successResponse(
-          result.application
+          result.application,
+          notificationStatus
         );
+      }
     }
   } catch (error) {
     /*

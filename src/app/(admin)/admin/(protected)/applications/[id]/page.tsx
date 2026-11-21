@@ -253,7 +253,7 @@ const TEXT = {
     saved: "Die Entscheidung wurde gespeichert.",
     emailQueued:
       "Die Benachrichtigung wurde für den E-Mail-Versand vorgemerkt.",
-    emailSent: "Die E-Mail wurde versendet.",
+    emailSent: "Der E-Mail-Anbieter hat die Nachricht angenommen.",
     emailFailed:
       "Die Entscheidung wurde gespeichert, aber die E-Mail konnte nicht versendet werden.",
     emailNotConfigured:
@@ -349,7 +349,7 @@ const TEXT = {
     saving: "جارٍ حفظ القرار...",
     saved: "تم حفظ القرار.",
     emailQueued: "تمت جدولة إشعار البريد الإلكتروني.",
-    emailSent: "تم إرسال البريد الإلكتروني.",
+    emailSent: "قبل مزود البريد الإلكتروني الرسالة.",
     emailFailed:
       "تم حفظ القرار لكن تعذر إرسال البريد.",
     emailNotConfigured:
@@ -444,7 +444,7 @@ const TEXT = {
     saving: "Karar kaydediliyor...",
     saved: "Karar kaydedildi.",
     emailQueued: "E-posta bildirimi gönderim sırasına alındı.",
-    emailSent: "E-posta gönderildi.",
+    emailSent: "E-posta sağlayıcısı mesajı kabul etti.",
     emailFailed:
       "Karar kaydedildi ancak e-posta gönderilemedi.",
     emailNotConfigured:
@@ -541,7 +541,7 @@ const TEXT = {
     saved: "La decisión se ha guardado.",
     emailQueued:
       "La notificación se ha puesto en cola para enviarla.",
-    emailSent: "El correo se ha enviado.",
+    emailSent: "El proveedor de correo ha aceptado el mensaje.",
     emailFailed:
       "La decisión se guardó, pero falló el envío del correo.",
     emailNotConfigured:

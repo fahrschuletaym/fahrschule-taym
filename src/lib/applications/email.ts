@@ -2,6 +2,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import { prepareDecisionEmail } from "@/lib/admin/notifications";
 
 import {
   Pool,
@@ -122,7 +123,9 @@ const BRAND_COLORS = {
 
 export type ApplicationEmailKind =
   | "CANDIDATE"
-  | "ADMINISTRATOR";
+  | "ADMINISTRATOR"
+  | "DECISION_APPROVED"
+  | "DECISION_REJECTED";
 
 export type ApplicationEmailDeliveryStatus =
   | "ACCEPTED"
@@ -2975,6 +2978,40 @@ export async function enqueueApplicationSubmissionEmails({
   }
 }
 
+export async function enqueueApplicationDecisionEmail({
+  client, applicationId, reference, recipient, firstName, lastName,
+  countryCode, locale, decision, reason,
+}: {
+  client: PoolClient;
+  applicationId: string;
+  reference: string;
+  recipient: string;
+  firstName: string;
+  lastName: string;
+  countryCode: ApplicationCountry;
+  locale: ApplicationLocale;
+  decision: "APPROVED" | "REJECTED";
+  reason: string | null;
+}): Promise<void> {
+  const kind = decision === "APPROVED" ? "DECISION_APPROVED" : "DECISION_REJECTED";
+  const content = prepareDecisionEmail({
+    applicationId, applicationReference: reference, decision, reason,
+    countryCode, firstName, lastName,
+  }, locale);
+  const payload: ResendEmailPayload = {
+    from: process.env.RESEND_FROM_EMAIL?.trim() || process.env.TAYM_MAIL_FROM?.trim() || "",
+    to: [recipient.trim().toLowerCase()],
+    ...content,
+  };
+  await client.query(
+    `INSERT INTO application_email_jobs
+      (id, application_id, kind, status, payload, idempotency_key, attempts, next_attempt_at, created_at, updated_at)
+     VALUES ($1::uuid, $2::uuid, $3, 'PENDING', $4::jsonb, $5, 0, NOW(), NOW(), NOW())
+     ON CONFLICT (application_id, kind) DO NOTHING`,
+    [randomUUID(), applicationId, kind, JSON.stringify(payload), `taym-application/${applicationId}/${kind.toLowerCase()}`]
+  );
+}
+
 /* ============================================================
    27. DATABASE JOB ROW
    ============================================================ */
@@ -3363,6 +3400,12 @@ function getProviderRetryAfter(
 async function sendResendEmail(
   job: ApplicationEmailJob
 ): Promise<string> {
+  if (!job.payload.from) {
+    job.payload.from = process.env.RESEND_FROM_EMAIL?.trim() || process.env.TAYM_MAIL_FROM?.trim() || "";
+    if (!job.payload.from) {
+      throw new ApplicationEmailError("RESEND_CONFIGURATION_UNAVAILABLE", true, 300);
+    }
+  }
   validateResendPayload(
     job.payload
   );
@@ -3851,6 +3894,16 @@ async function processEmailJob(
 
     return "PENDING";
   }
+}
+
+export async function dispatchApplicationDecisionEmail(
+  applicationId: string,
+  decision: "APPROVED" | "REJECTED"
+): Promise<ApplicationEmailDeliveryStatus> {
+  const kind = decision === "APPROVED" ? "DECISION_APPROVED" : "DECISION_REJECTED";
+  const job = await claimEmailJob({ applicationId, kind });
+  if (!job) return "PENDING";
+  return processEmailJob(job);
 }
 
 /* ============================================================
