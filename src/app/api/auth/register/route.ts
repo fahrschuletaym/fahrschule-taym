@@ -296,11 +296,9 @@ function checkProviders(): void {
     ...(isSmsVerificationEnabled() ? ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"] : []),
   ] as const;
 
-  if (
-    required.some(
-      (key) => !process.env[key]?.trim()
-    )
-  ) {
+  const missing = required.filter((key) => !process.env[key]?.trim());
+  if (missing.length > 0) {
+    console.error("[TAYM][REGISTER] Missing configuration:", missing.join(", "));
     throw new ApiError(
       500,
       "CONFIGURATION_ERROR"
@@ -311,6 +309,7 @@ function checkProviders(): void {
     (process.env.VERIFICATION_SECRET?.length ?? 0) <
     32
   ) {
+    console.error("[TAYM][REGISTER] VERIFICATION_SECRET is too short");
     throw new ApiError(
       500,
       "CONFIGURATION_ERROR"

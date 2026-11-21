@@ -1371,6 +1371,8 @@ function DashboardLoading() {
       className="mx-auto w-full max-w-none animate-pulse space-y-4 px-3 pb-16 pt-4 sm:px-5 lg:px-7"
       aria-busy="true"
       aria-label="Dashboard wird geladen"
+      translate="no"
+      suppressHydrationWarning
     >
       <div className="h-44 rounded-[22px] bg-slate-200" />
 

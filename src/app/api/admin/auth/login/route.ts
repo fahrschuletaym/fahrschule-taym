@@ -206,20 +206,19 @@ function getAdminConfig(): AdminConfig {
   const ipHashSecret =
     process.env.TAYM_ADMIN_IP_HASH_SECRET;
 
-  if (
-    !email ||
-    !EMAIL_PATTERN.test(email) ||
-    !passwordHash ||
-    !passwordHash.startsWith(
-      "$argon2id$"
-    ) ||
-    !appOrigin ||
-    !ipHashSecret ||
-    ipHashSecret.length < 32
-  ) {
-    throw new Error(
-      "ADMIN_CONFIGURATION_INVALID"
-    );
+  const invalidSettings = [
+    !email || !EMAIL_PATTERN.test(email) ? "TAYM_ADMIN_EMAIL" : null,
+    !passwordHash || !passwordHash.startsWith("$argon2id$") ? "TAYM_ADMIN_PASSWORD_HASH" : null,
+    !appOrigin ? "TAYM_APP_ORIGIN" : null,
+    !ipHashSecret || ipHashSecret.length < 32 ? "TAYM_ADMIN_IP_HASH_SECRET" : null,
+  ].filter(Boolean);
+
+  if (invalidSettings.length) {
+    throw new Error(`ADMIN_CONFIGURATION_INVALID: ${invalidSettings.join(", ")}`);
+  }
+
+  if (!email || !passwordHash || !appOrigin || !ipHashSecret) {
+    throw new Error("ADMIN_CONFIGURATION_INVALID");
   }
 
   let normalizedOrigin: string;
