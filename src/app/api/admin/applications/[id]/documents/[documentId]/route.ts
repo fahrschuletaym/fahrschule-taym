@@ -10,19 +10,6 @@ import {
 } from "node:crypto";
 
 import {
-  constants as fsConstants,
-} from "node:fs";
-
-import {
-  lstat,
-  open,
-  realpath,
-  type FileHandle,
-} from "node:fs/promises";
-
-import path from "node:path";
-
-import {
   Pool,
 } from "pg";
 
@@ -330,18 +317,22 @@ async function authorizeDocument(
       d.id::text AS id,
       d.application_id::text AS application_id,
       d.storage_key,
-      d.file_name,
+      COALESCE(d.file_name, d.original_name) AS file_name,
       d.mime_type
 
-    FROM taym_application_documents d
+    FROM candidate_documents d
 
     INNER JOIN
-      taym_driving_license_applications a
+      license_applications a
       ON a.id = d.application_id
 
     WHERE
       d.id = $1::uuid
       AND d.application_id = $2::uuid
+      AND d.deleted_at IS NULL
+      AND d.upload_status = 'UPLOADED'
+      AND d.security_status = 'CLEAN'
+      AND a.status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED')
       AND a.country_code IN (
         'DE', 'AT', 'BE', 'IT', 'ES'
       )
@@ -390,31 +381,6 @@ async function authorizeDocument(
    The process needs read permission.
    ============================================================ */
 
-async function getPrivateRoot(): Promise<string> {
-  const configured =
-    process.env.TAYM_PRIVATE_DOCUMENTS_DIR;
-
-  if (
-    !configured ||
-    !path.isAbsolute(configured)
-  ) {
-    throw new Error(
-      "PRIVATE_DOCUMENT_ROOT_NOT_CONFIGURED"
-    );
-  }
-
-  const root = await realpath(configured);
-
-  const stat = await lstat(root);
-
-  if (!stat.isDirectory()) {
-    throw new Error(
-      "PRIVATE_DOCUMENT_ROOT_INVALID"
-    );
-  }
-
-  return root;
-}
 
 /* ============================================================
    9. VALIDATE STORAGE KEY
@@ -490,88 +456,6 @@ function storageSegments(
    by trusted backend processes.
    ============================================================ */
 
-async function resolvePrivateFile(
-  root: string,
-  storageKey: string
-): Promise<string> {
-  const segments =
-    storageSegments(storageKey);
-
-  const filePath =
-    path.resolve(root, ...segments);
-
-  const relative =
-    path.relative(root, filePath);
-
-  if (
-    relative === "" ||
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`) ||
-    path.isAbsolute(relative)
-  ) {
-    throw new DocumentError(
-      "DOCUMENT_UNAVAILABLE",
-      404
-    );
-  }
-
-  /*
-   * Reject symbolic links in the
-   * intermediate path components.
-   */
-
-  let current = root;
-
-  for (
-    let index = 0;
-    index < segments.length - 1;
-    index++
-  ) {
-    current = path.join(
-      current,
-      segments[index]
-    );
-
-    const stat = await lstat(current);
-
-    if (
-      stat.isSymbolicLink() ||
-      !stat.isDirectory()
-    ) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-  }
-
-  /*
-   * Ensure final parent still resolves
-   * within private root.
-   */
-
-  const parent = await realpath(
-    path.dirname(filePath)
-  );
-
-  const parentRelative =
-    path.relative(root, parent);
-
-  if (
-    parentRelative === ".." ||
-    parentRelative.startsWith(
-      `..${path.sep}`
-    ) ||
-    path.isAbsolute(parentRelative)
-  ) {
-    throw new DocumentError(
-      "DOCUMENT_UNAVAILABLE",
-      404
-    );
-  }
-
-  return filePath;
-}
 
 /* ============================================================
    11. ALLOWED FILE SIGNATURES
@@ -729,168 +613,6 @@ function safeFileName(
    protected by filesystem permissions.
    ============================================================ */
 
-async function loadPrivateDocument(
-  document: DocumentRow
-): Promise<LoadedDocument> {
-  const root = await getPrivateRoot();
-
-  const filePath = await resolvePrivateFile(
-    root,
-    document.storage_key
-  );
-
-  let handle: FileHandle | null = null;
-
-  try {
-    /*
-     * Reject a final symbolic link
-     * before opening the file.
-     */
-
-    const initialStat =
-      await lstat(filePath);
-
-    if (
-      initialStat.isSymbolicLink() ||
-      !initialStat.isFile()
-    ) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-
-    handle = await open(
-      filePath,
-      fsConstants.O_RDONLY |
-        fsConstants.O_NOFOLLOW |
-        fsConstants.O_NONBLOCK
-    );
-
-    /*
-     * Verify the opened file itself,
-     * not just the pathname.
-     */
-
-    const stat = await handle.stat();
-
-    if (!stat.isFile()) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-
-    if (stat.size <= 0) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-
-    if (stat.size > MAX_FILE_BYTES) {
-      throw new DocumentError(
-        "DOCUMENT_TOO_LARGE",
-        413
-      );
-    }
-
-    /*
-     * Allocate only after checking
-     * the file's reported size.
-     */
-
-    const buffer = Buffer.alloc(
-      stat.size
-    );
-
-    let total = 0;
-
-    while (total < buffer.length) {
-      const result = await handle.read(
-        buffer,
-        total,
-        buffer.length - total,
-        total
-      );
-
-      if (result.bytesRead === 0) {
-        break;
-      }
-
-      total += result.bytesRead;
-    }
-
-    /*
-     * A file truncated during reading
-     * must not be served partially.
-     */
-
-    if (total !== buffer.length) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-
-    /*
-     * Detect a file modified between
-     * initial size and final read.
-     *
-     * Deployment should additionally
-     * keep uploaded objects immutable.
-     */
-
-    const finalStat =
-      await handle.stat();
-
-    if (
-      !finalStat.isFile() ||
-      finalStat.size !== stat.size ||
-      finalStat.mtimeMs !== stat.mtimeMs
-    ) {
-      throw new DocumentError(
-        "DOCUMENT_UNAVAILABLE",
-        404
-      );
-    }
-
-    const mimeType = validateMime(
-      detectMimeType(buffer),
-      document.mime_type
-    );
-
-    return {
-      bytes: new Uint8Array(buffer),
-      mimeType,
-      fileName: safeFileName(
-        document.id,
-        mimeType
-      ),
-    };
-  } catch (error) {
-    if (error instanceof DocumentError) {
-      throw error;
-    }
-
-    /*
-     * Storage paths and operating
-     * system errors must not be
-     * exposed to the browser.
-     */
-
-    throw new DocumentError(
-      "DOCUMENT_UNAVAILABLE",
-      404
-    );
-  } finally {
-    if (handle) {
-      await handle.close().catch(() => {
-        // File descriptor cleanup.
-      });
-    }
-  }
-}
 
 /* ============================================================
    15. FILE RESPONSE
@@ -1045,10 +767,38 @@ export async function GET(
 
     /* D. Read private document */
 
-    const file =
-      await loadPrivateDocument(
-        authorization.document
-      );
+    const doc = authorization.document;
+    const base = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const bucket = process.env.APPLICATION_DOCUMENTS_BUCKET || "candidate-documents";
+    if (!base || !key || !/^[a-zA-Z0-9_-]{1,63}$/.test(bucket)) throw new DocumentError("SERVICE_UNAVAILABLE", 503);
+    const origin = new URL(base);
+    if (origin.protocol !== "https:") throw new DocumentError("SERVICE_UNAVAILABLE", 503);
+    const segments = storageSegments(doc.storage_key);
+    if (!segments.includes(applicationId) || !segments.at(-1)?.startsWith(documentId + ".")) throw new DocumentError("DOCUMENT_UNAVAILABLE", 404);
+    const headers: Record<string, string> = { apikey: key };
+    if (!key.startsWith("sb_secret_")) headers.Authorization = `Bearer ${key}`;
+    const bucketResponse = await fetch(`${origin.origin}/storage/v1/bucket/${encodeURIComponent(bucket)}`, { headers, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(30000) });
+    if (!bucketResponse.ok) throw new DocumentError("SERVICE_UNAVAILABLE", 503);
+    const bucketInfo: unknown = await bucketResponse.json();
+    if (!bucketInfo || typeof bucketInfo !== "object" || !("id" in bucketInfo) || bucketInfo.id !== bucket || !("public" in bucketInfo) || bucketInfo.public !== false) throw new DocumentError("SERVICE_UNAVAILABLE", 503);
+    const response = await fetch(`${origin.origin}/storage/v1/object/authenticated/${encodeURIComponent(bucket)}/${segments.map(encodeURIComponent).join("/")}`, { headers, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(30000) });
+    if (!response.ok || !response.body) throw new DocumentError("DOCUMENT_UNAVAILABLE", 404);
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > MAX_FILE_BYTES) { await reader.cancel(); throw new DocumentError("DOCUMENT_TOO_LARGE", 413); }
+        chunks.push(value);
+      }
+    } finally { reader.releaseLock(); }
+    const buffer = Buffer.concat(chunks);
+    const mimeType = validateMime(detectMimeType(buffer), doc.mime_type);
+    const file: LoadedDocument = { bytes: new Uint8Array(buffer), mimeType, fileName: safeFileName(doc.id, mimeType) };
 
     /* E. Return authorized file */
 

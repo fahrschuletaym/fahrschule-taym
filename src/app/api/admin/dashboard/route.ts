@@ -639,8 +639,9 @@ async function getStatistics(
 
         COUNT(*) FILTER (
           WHERE status IN (
-            'PENDING',
-            'IN_REVIEW'
+            'SUBMITTED',
+            'REVIEWING',
+            'NEEDS_INFO'
           )
         ) AS pending,
 
@@ -653,9 +654,10 @@ async function getStatistics(
         ) AS rejected
 
       FROM
-        taym_driving_license_applications
+        license_applications
 
       WHERE
+        status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED') AND
         country_code IN (
           'DE',
           'AT',

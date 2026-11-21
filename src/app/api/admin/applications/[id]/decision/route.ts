@@ -13,6 +13,7 @@ import {
   Pool,
   type PoolClient,
 } from "pg";
+import { REQUIRED_DOCUMENT_TYPES } from "@/lib/applications/validation";
 
 /* ============================================================
    FAHRSCHULE TAYM
@@ -36,7 +37,7 @@ import {
    4. Update application status
    5. Insert administrative decision
    6. Insert activity log
-   7. Queue email notification
+   7. Report that decision email is not configured
    8. Read updated application
    9. Commit
 
@@ -277,7 +278,7 @@ function successResponse(
     {
       success: true,
       application,
-      notificationStatus: "QUEUED",
+      notificationStatus: "NOT_CONFIGURED",
     },
     {
       status: 200,
@@ -881,8 +882,8 @@ async function lockApplication(
       `
       SELECT
         id::text AS id,
-        reference,
-        status,
+        COALESCE(reference, application_number) AS reference,
+        CASE WHEN status = 'SUBMITTED' THEN 'PENDING' WHEN status IN ('REVIEWING', 'NEEDS_INFO') THEN 'IN_REVIEW' ELSE status END AS status,
         country_code,
         license_class,
         first_name,
@@ -890,8 +891,9 @@ async function lockApplication(
         email,
         created_at,
         updated_at
-      FROM taym_driving_license_applications
+      FROM license_applications
       WHERE id = $1::uuid
+        AND status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED')
         AND country_code IN (
           'DE', 'AT', 'BE', 'IT', 'ES'
         )
@@ -912,20 +914,20 @@ async function loadDetails(
     await client.query<ApplicationDetailRow>(
       `
       SELECT
-        application_id::text AS application_id,
-        request_type,
-        notes,
-        date_of_birth,
-        nationality,
-        phone_e164,
-        email_verified,
-        phone_verified,
-        street_address,
-        postal_code,
-        city,
-        additional_fields
-      FROM taym_application_details
-      WHERE application_id = $1::uuid
+        a.id::text AS application_id,
+        a.application_type AS request_type,
+        a.applicant_notes AS notes,
+        a.date_of_birth,
+        a.nationality,
+        a.phone_e164,
+        (u.email_verified_at IS NOT NULL) AS email_verified,
+        (u.phone_verified_at IS NOT NULL) AS phone_verified,
+        COALESCE(a.residential_address, a.street_address) AS street_address,
+        a.postal_code,
+        a.city,
+        '[]'::jsonb AS additional_fields
+      FROM license_applications a JOIN users u ON u.id = a.applicant_id
+      WHERE a.id = $1::uuid
       LIMIT 1
       `,
       [id]
@@ -943,15 +945,15 @@ async function loadDocuments(
       `
       SELECT
         id::text AS id,
-        document_type,
-        label,
-        file_name,
+        CASE COALESCE(type, document_type) WHEN 'ADDRESS_PROOF' THEN 'PROOF_OF_ADDRESS' WHEN 'PASSPORT_PHOTO' THEN 'PORTRAIT' WHEN 'IDENTITY_FRONT' THEN 'IDENTITY_FRONT' WHEN 'IDENTITY_BACK' THEN 'IDENTITY_BACK' WHEN 'SIGNATURE' THEN 'SIGNATURE' ELSE 'OTHER' END AS document_type,
+        title AS label,
+        COALESCE(file_name, original_name) AS file_name,
         mime_type,
-        verification_status,
-        uploaded_at
-      FROM taym_application_documents
-      WHERE application_id = $1::uuid
-      ORDER BY uploaded_at ASC NULLS LAST, id ASC
+        CASE review_status WHEN 'APPROVED' THEN 'VERIFIED' WHEN 'REJECTED' THEN 'REJECTED' ELSE 'PENDING' END AS verification_status,
+        created_at AS uploaded_at
+      FROM candidate_documents
+      WHERE application_id = $1::uuid AND deleted_at IS NULL
+      ORDER BY created_at ASC NULLS LAST, id ASC
       LIMIT $2
       `,
       [id, MAX_DOCUMENTS + 1]
@@ -971,9 +973,10 @@ async function loadDecision(
   const result =
     await client.query<DecisionRow>(
       `
-      SELECT decided_at, reason
-      FROM taym_application_decisions
-      WHERE application_id = $1::uuid
+      SELECT created_at AS decided_at, public_note AS reason
+      FROM application_status_history
+      WHERE application_id = $1::uuid AND new_status IN ('APPROVED', 'REJECTED')
+      ORDER BY created_at DESC
       LIMIT 1
       `,
       [id]
@@ -1085,20 +1088,11 @@ async function insertDecision(
 ): Promise<void> {
   await client.query(
     `
-    INSERT INTO taym_application_decisions (
-      application_id,
-      status,
-      reason,
-      decided_at
-    )
-    VALUES (
-      $1::uuid,
-      $2,
-      $3,
-      NOW()
-    )
+    INSERT INTO application_status_history (id, application_id, previous_status, new_status, public_note, created_at)
+    SELECT $4::uuid, id, status, $2, $3, NOW()
+    FROM license_applications WHERE id = $1::uuid
     `,
-    [applicationId, decision, reason]
+    [applicationId, decision, reason, randomUUID()]
   );
 }
 
@@ -1119,12 +1113,13 @@ async function updateStatus(
 ): Promise<void> {
   const result = await client.query(
     `
-    UPDATE taym_driving_license_applications
+    UPDATE license_applications
     SET
       status = $2,
+      reviewed_at = clock_timestamp(),
       updated_at = clock_timestamp()
     WHERE id = $1::uuid
-      AND status IN ('PENDING', 'IN_REVIEW')
+      AND status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO')
     `,
     [applicationId, decision]
   );
@@ -1193,83 +1188,13 @@ async function writeActivity(
 }
 
 /* ============================================================
-   14. NOTIFICATION OUTBOX
+   14. NOTIFICATION
 
-   This is a durable email job,
-   not proof that email was sent.
-
-   The email worker will:
-   - Find PENDING outbox rows
-   - Compose translated messages
-   - Deliver them through the
-     configured email provider
-   - Mark SENT only after provider
-     confirmation
-   - Retry temporary failures
-
-   Never send an email directly
-   inside the database transaction.
+   The previous outbox references a different application
+   table. Do not claim that an email was queued until an
+   outbox for the candidate application is configured.
    ============================================================ */
 
-async function queueEmail(
-  client: PoolClient,
-  application: DatabaseApplicationRow,
-  decision: Decision,
-  reason: string | null
-): Promise<void> {
-  const eventKey =
-    `APPLICATION_DECISION:${application.id}`;
-
-  const payload = {
-    applicationId: application.id,
-    applicationReference: application.reference,
-    decision,
-    reason,
-    countryCode: application.country_code,
-    firstName: application.first_name,
-    lastName: application.last_name,
-  };
-
-  await client.query(
-    `
-    INSERT INTO taym_notification_outbox (
-      id,
-      event_key,
-      application_id,
-      recipient_email,
-      event_type,
-      locale,
-      payload,
-      status,
-      attempts,
-      created_at
-    )
-    VALUES (
-      $1::uuid,
-      $2,
-      $3::uuid,
-      $4,
-      $5,
-      $6,
-      $7::jsonb,
-      'PENDING',
-      0,
-      NOW()
-    )
-    `,
-    [
-      randomUUID(),
-      eventKey,
-      application.id,
-      application.email,
-      decision === "APPROVED"
-        ? "APPLICATION_APPROVED"
-        : "APPLICATION_REJECTED",
-      "de",
-      JSON.stringify(payload),
-    ]
-  );
-}
 
 /* ============================================================
    15. DECISION TRANSACTION
@@ -1412,7 +1337,25 @@ async function processDecision(
     requiredText(current.license_class, 100);
     requiredText(details.phone_e164, 40);
 
+    if (input.decision === "APPROVED") {
+      const required = await client.query<{ type: string }>(
+        `SELECT DISTINCT type FROM candidate_documents
+         WHERE application_id = $1::uuid AND deleted_at IS NULL
+           AND upload_status = 'UPLOADED' AND security_status = 'CLEAN' AND review_status <> 'REJECTED'
+           AND type = ANY($2::text[])`,
+        [applicationId, REQUIRED_DOCUMENT_TYPES]
+      );
+      const found = new Set(required.rows.map((row) => row.type));
+      if (!REQUIRED_DOCUMENT_TYPES.every((type) => found.has(type))) {
+        await client.query("ROLLBACK");
+        transactionOpen = false;
+        return { kind: "incomplete" };
+      }
+    }
+
     /* E. Update application */
+
+    await insertDecision(client, applicationId, input.decision, input.reason);
 
     await updateStatus(
       client,
@@ -1421,13 +1364,6 @@ async function processDecision(
     );
 
     /* F. Save administrative decision */
-
-    await insertDecision(
-      client,
-      applicationId,
-      input.decision,
-      input.reason
-    );
 
     /* G. Record audit event */
 
@@ -1438,13 +1374,6 @@ async function processDecision(
     );
 
     /* H. Queue email notification */
-
-    await queueEmail(
-      client,
-      current,
-      input.decision,
-      input.reason
-    );
 
     /* I. Return updated dossier */
 

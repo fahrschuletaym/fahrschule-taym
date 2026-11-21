@@ -1052,9 +1052,11 @@ async function getApplicationRow(
       SELECT
         a.id::text AS id,
 
-        a.reference,
+        COALESCE(a.reference, a.application_number) AS reference,
 
-        a.status,
+        CASE WHEN a.status = 'SUBMITTED' THEN 'PENDING'
+             WHEN a.status IN ('REVIEWING', 'NEEDS_INFO') THEN 'IN_REVIEW'
+             ELSE a.status END AS status,
 
         a.country_code,
 
@@ -1070,48 +1072,34 @@ async function getApplicationRow(
 
         a.email,
 
-        d.application_id IS NOT NULL
-          AS details_present,
-
-        d.request_type,
-
-        d.notes,
-
-        d.date_of_birth,
-
-        d.nationality,
-
-        d.phone_e164,
-
-        d.email_verified,
-
-        d.phone_verified,
-
-        d.street_address,
-
-        d.postal_code,
-
-        d.city,
-
-        d.additional_fields,
-
-        dec.decided_at,
-
-        dec.reason AS decision_reason
+        TRUE AS details_present,
+        a.application_type AS request_type,
+        a.applicant_notes AS notes,
+        a.date_of_birth,
+        a.nationality,
+        a.phone_e164,
+        (u.email_verified_at IS NOT NULL) AS email_verified,
+        (u.phone_verified_at IS NOT NULL) AS phone_verified,
+        COALESCE(a.residential_address, a.street_address) AS street_address,
+        a.postal_code,
+        a.city,
+        '[]'::jsonb AS additional_fields,
+        dec.created_at AS decided_at,
+        dec.public_note AS decision_reason
 
       FROM
-        taym_driving_license_applications a
-
-      LEFT JOIN
-        taym_application_details d
-        ON d.application_id = a.id
-
-      LEFT JOIN
-        taym_application_decisions dec
-        ON dec.application_id = a.id
+        license_applications a
+      JOIN users u ON u.id = a.applicant_id
+      LEFT JOIN LATERAL (
+        SELECT created_at, public_note FROM application_status_history
+        WHERE application_id = a.id AND new_status IN ('APPROVED', 'REJECTED')
+        ORDER BY created_at DESC LIMIT 1
+      ) dec ON TRUE
 
       WHERE
         a.id = $1::uuid
+
+        AND a.status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED')
 
         AND a.country_code IN (
           'DE',
@@ -1154,26 +1142,33 @@ async function getDocumentMetadata(
       SELECT
         id::text AS id,
 
-        document_type,
+        CASE COALESCE(type, document_type)
+          WHEN 'ADDRESS_PROOF' THEN 'PROOF_OF_ADDRESS'
+          WHEN 'PASSPORT_PHOTO' THEN 'PORTRAIT'
+          WHEN 'IDENTITY_FRONT' THEN 'IDENTITY_FRONT'
+          WHEN 'IDENTITY_BACK' THEN 'IDENTITY_BACK'
+          WHEN 'SIGNATURE' THEN 'SIGNATURE'
+          ELSE 'OTHER' END AS document_type,
 
-        label,
+        title AS label,
 
-        file_name,
+        COALESCE(file_name, original_name) AS file_name,
 
         mime_type,
 
-        verification_status,
+        CASE review_status WHEN 'APPROVED' THEN 'VERIFIED'
+          WHEN 'REJECTED' THEN 'REJECTED' ELSE 'PENDING' END AS verification_status,
 
-        uploaded_at
+        created_at AS uploaded_at
 
       FROM
-        taym_application_documents
+        candidate_documents
 
       WHERE
-        application_id = $1::uuid
+        application_id = $1::uuid AND deleted_at IS NULL
 
       ORDER BY
-        uploaded_at ASC NULLS LAST,
+        created_at ASC NULLS LAST,
         id ASC
 
       LIMIT $2

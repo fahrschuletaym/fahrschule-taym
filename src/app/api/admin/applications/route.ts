@@ -91,6 +91,17 @@ const MAX_SEARCH_LENGTH = 120;
 
 const MAX_QUERY_LENGTH = 1024;
 
+// Read the same submitted applications as the candidate dashboard.
+const APPLICATIONS_SOURCE = `(
+  SELECT id, COALESCE(reference, application_number) AS reference,
+    first_name, last_name, email, country_code, license_class, created_at, updated_at,
+    CASE WHEN status = 'SUBMITTED' THEN 'PENDING'
+         WHEN status IN ('REVIEWING', 'NEEDS_INFO') THEN 'IN_REVIEW'
+         ELSE status END AS status
+  FROM license_applications
+  WHERE status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED')
+) AS candidate_applications`;
+
 /* ============================================================
    2. ALLOWED COUNTRIES AND STATUSES
    ============================================================ */
@@ -792,7 +803,7 @@ async function getStatistics(
         ) AS rejected
 
       FROM
-        taym_driving_license_applications
+        ${APPLICATIONS_SOURCE}
 
       WHERE
         country_code IN (
@@ -984,7 +995,7 @@ async function countApplications(
         COUNT(*) AS total
 
       FROM
-        taym_driving_license_applications
+        ${APPLICATIONS_SOURCE}
 
       ${condition.where}
       `,
@@ -1052,7 +1063,7 @@ async function listApplications(
         updated_at
 
       FROM
-        taym_driving_license_applications
+        ${APPLICATIONS_SOURCE}
 
       ${condition.where}
 

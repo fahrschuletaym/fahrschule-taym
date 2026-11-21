@@ -434,9 +434,8 @@ function getStorageConfiguration():
       ?.trim();
 
   const serviceRoleKey =
-    process.env
-      .SUPABASE_SERVICE_ROLE_KEY
-      ?.trim();
+    process.env.SUPABASE_SECRET_KEY?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
   const bucket =
     process.env
@@ -505,11 +504,10 @@ function getStorageHeaders(
   config: StorageConfiguration
 ): Record<string, string> {
   return {
-    Authorization:
-      `Bearer ${config.serviceRoleKey}`,
-
-    apikey:
-      config.serviceRoleKey,
+    apikey: config.serviceRoleKey,
+    ...(config.serviceRoleKey.startsWith("sb_secret_")
+      ? {}
+      : { Authorization: `Bearer ${config.serviceRoleKey}` }),
   };
 }
 
