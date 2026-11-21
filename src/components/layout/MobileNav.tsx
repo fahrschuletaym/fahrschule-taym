@@ -93,7 +93,7 @@ const navigation = [
   },
   {
     key: "account",
-    href: "/konto",
+    href: "/dashboard/account",
     icon: UserRound,
   },
 ] as const;

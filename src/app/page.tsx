@@ -992,7 +992,7 @@ export default function HomePage() {
 
               return (
                 <Link
-                  key={item.href}
+                  key={`${item.href}-${index}`}
                   href={href(item.href)}
                   className={`group flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-center transition hover:text-[#397900] ${
                     index >= 4 ? "hidden md:flex" : "flex"

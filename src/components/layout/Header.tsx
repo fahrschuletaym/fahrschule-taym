@@ -599,7 +599,7 @@ export default function Header() {
             <LanguageSwitcher />
 
             <Link
-              href={localizedHref("/konto")}
+              href={localizedHref("/dashboard/account")}
               className="taym-header-mobile-icon"
               aria-label={t.account}
               title={t.account}
