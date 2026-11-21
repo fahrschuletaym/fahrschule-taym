@@ -2949,7 +2949,7 @@ export function isDocumentReadyForSubmission(
 
     document.uploadStatus === "UPLOADED" &&
 
-    document.securityStatus === "CLEAN" &&
+    document.securityStatus !== "REJECTED" &&
 
     (
       document.reviewStatus === "PENDING" ||

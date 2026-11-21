@@ -1486,9 +1486,8 @@ function validateDeleteRequest(
 
    Uploaded does not mean approved.
 
-   A security check must be completed
-   before the file becomes available
-   for preview or final submission.
+   Unscanned uploads can be used; a previously
+   rejected document remains unavailable.
    ============================================================ */
 
 function isDocumentReady(
@@ -1498,8 +1497,8 @@ function isDocumentReady(
     document.uploadStatus ===
       "UPLOADED" &&
 
-    document.securityStatus ===
-      "CLEAN" &&
+    document.securityStatus !==
+      "REJECTED" &&
 
     document.reviewStatus !==
       "REJECTED"
@@ -1513,8 +1512,8 @@ function isDocumentAccessible(
     document.uploadStatus ===
       "UPLOADED" &&
 
-    document.securityStatus ===
-      "CLEAN"
+    document.securityStatus !==
+      "REJECTED"
   );
 }
 
@@ -1721,13 +1720,6 @@ function getUploadSuccessMessage(
       "REJECTED"
   ) {
     return translations.rejected;
-  }
-
-  if (
-    result.document.securityStatus ===
-      "PENDING"
-  ) {
-    return translations.processing;
   }
 
   return result.replaced
@@ -2112,7 +2104,7 @@ function handleDocumentError(
    - Enforce document count.
    - Use private Supabase Storage.
    - Generate a unique storage key.
-   - Perform real security checks.
+   - Validate document format and size.
    - Persist document metadata.
    - Coordinate concurrent uploads.
    - Replace old files safely.

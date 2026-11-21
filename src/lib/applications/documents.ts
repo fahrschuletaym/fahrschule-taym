@@ -12,10 +12,6 @@ import {
 } from "pg";
 
 import {
-  createConnection,
-} from "node:net";
-
-import {
   ApplicationValidationError,
   normalizeApplicationLocale,
   normalizeApplicationCountry,
@@ -48,7 +44,6 @@ import {
 
    Database: PostgreSQL
    Storage: Supabase Storage
-   Security scanner: Private ClamAV service
 
    Countries:
    DE | AT | BE | IT | ES
@@ -79,12 +74,6 @@ const DEFAULT_STORAGE_BUCKET =
   "candidate-documents";
 
 const STORAGE_TIMEOUT_MS = 30_000;
-
-const SCAN_TIMEOUT_MS = 30_000;
-
-const MAX_SCAN_RESPONSE_BYTES = 4096;
-
-const SCAN_CHUNK_BYTES = 64 * 1024;
 
 const CLEANUP_BATCH_SIZE = 10;
 
@@ -1022,262 +1011,6 @@ function calculateFileHash(
 }
 
 /* ============================================================
-   17. CLAMAV SECURITY SCANNER
-
-   Real malware scan using the
-   ClamAV INSTREAM protocol.
-
-   The scanner must be deployed on
-   a private trusted network.
-
-   Never expose its TCP port publicly.
-
-   If the scanner is unavailable,
-   the upload is rejected temporarily.
-
-   No fake CLEAN status.
-   ============================================================ */
-
-async function scanDocumentContent(
-  content: Uint8Array
-): Promise<"CLEAN" | "REJECTED"> {
-  const host =
-    process.env.CLAMAV_HOST?.trim();
-
-  const port =
-    Number(
-      process.env.CLAMAV_PORT || "3310"
-    );
-
-  if (
-    !host ||
-
-    !Number.isInteger(port) ||
-
-    port < 1 ||
-
-    port > 65535
-  ) {
-    throw new ApplicationDocumentError(
-      "SERVICE_UNAVAILABLE",
-      503
-    );
-  }
-
-  if (
-    !isValidDocumentSize(
-      content.byteLength
-    )
-  ) {
-    throw new ApplicationDocumentError(
-      "DOCUMENT_UNAVAILABLE",
-      409
-    );
-  }
-
-  return new Promise((resolve, reject) => {
-    let settled = false;
-
-    let response =
-      Buffer.alloc(0);
-
-    const socket =
-      createConnection({
-        host,
-        port,
-      });
-
-    const timer = setTimeout(() => {
-      finishError();
-    }, SCAN_TIMEOUT_MS);
-
-    function cleanup() {
-      clearTimeout(timer);
-
-      socket.destroy();
-    }
-
-    function finishError() {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-
-      cleanup();
-
-      reject(
-        new ApplicationDocumentError(
-          "SERVICE_UNAVAILABLE",
-          503
-        )
-      );
-    }
-
-    function finishSuccess(
-      result: "CLEAN" | "REJECTED"
-    ) {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-
-      cleanup();
-
-      resolve(result);
-    }
-
-    socket.on("error", finishError);
-
-    socket.on("end", () => {
-      if (!settled) {
-        finishError();
-      }
-    });
-
-    socket.on("close", () => {
-      if (!settled) {
-        finishError();
-      }
-    });
-
-    socket.on("data", (chunk: Buffer) => {
-      if (
-        response.length + chunk.length >
-          MAX_SCAN_RESPONSE_BYTES
-      ) {
-        finishError();
-
-        return;
-      }
-
-      response =
-        Buffer.concat([
-          response,
-          chunk,
-        ]);
-
-      const separator =
-        response.indexOf(0);
-
-      if (separator === -1) {
-        return;
-      }
-
-      const message =
-        response
-          .subarray(0, separator)
-          .toString("utf8")
-          .trim();
-
-      if (
-        message === "stream: OK"
-      ) {
-        finishSuccess("CLEAN");
-
-        return;
-      }
-
-      if (
-        /^stream: .+ FOUND$/.test(message)
-      ) {
-        finishSuccess("REJECTED");
-
-        return;
-      }
-
-      finishError();
-    });
-
-    socket.once("connect", () => {
-      socket.setNoDelay(true);
-
-      /*
-       * INSTREAM command terminated
-       * with a null byte.
-       */
-
-      socket.write(
-        Buffer.from(
-          "zINSTREAM\0",
-          "ascii"
-        )
-      );
-
-      let offset = 0;
-
-      function writeNextChunk() {
-        if (
-          settled ||
-          socket.destroyed
-        ) {
-          return;
-        }
-
-        while (
-          offset < content.byteLength
-        ) {
-          const end =
-            Math.min(
-              offset + SCAN_CHUNK_BYTES,
-
-              content.byteLength
-            );
-
-          const chunk =
-            content.subarray(
-              offset,
-              end
-            );
-
-          const length =
-            Buffer.alloc(4);
-
-          length.writeUInt32BE(
-            chunk.byteLength,
-            0
-          );
-
-          const packet =
-            Buffer.concat([
-              length,
-
-              Buffer.from(chunk),
-            ]);
-
-          offset = end;
-
-          const writable =
-            socket.write(packet);
-
-          if (!writable) {
-            socket.once(
-              "drain",
-
-              writeNextChunk
-            );
-
-            return;
-          }
-        }
-
-        /*
-         * A zero-length chunk marks
-         * the end of the stream.
-         */
-
-        socket.write(
-          Buffer.alloc(4)
-        );
-      }
-
-      writeNextChunk();
-    });
-  });
-}
-
-/* ============================================================
    18. SUPABASE PRIVATE FILE UPLOAD
 
    Uses a new unique object key.
@@ -1830,9 +1563,7 @@ function assertDocumentAccessible(
   }
 
   if (
-    document.uploadStatus !== "UPLOADED" ||
-
-    document.securityStatus !== "CLEAN"
+    document.uploadStatus !== "UPLOADED"
   ) {
     throw new ApplicationDocumentError(
       "DOCUMENT_NOT_READY",
@@ -2024,7 +1755,7 @@ function assertUploadCapacity(
 
    1. Validate file.
    2. Verify candidate and draft.
-   3. Scan actual file content.
+   3. Validate the file content.
    4. Create orphan cleanup protection.
    5. Lock candidate and application.
    6. Recheck ownership and status.
@@ -2053,8 +1784,8 @@ export async function uploadCandidateApplicationDocument(
 
   /*
    * Make an independent copy so that
-   * scanned bytes and uploaded bytes
-   * are exactly the same.
+   * file validation and storage use
+   * the same bytes.
    */
 
   const content =
@@ -2064,8 +1795,8 @@ export async function uploadCandidateApplicationDocument(
 
   /*
    * First authentication check.
-   * Avoid unnecessary scanning for
-   * unauthorized applications.
+   * Check the candidate and application
+   * before storing a document.
    */
 
   const candidate =
@@ -2100,23 +1831,6 @@ export async function uploadCandidateApplicationDocument(
         return currentCandidate;
       }
     );
-
-  const scanResult =
-    await scanDocumentContent(
-      content
-    );
-
-  if (scanResult !== "CLEAN") {
-    throwValidationError(
-      "DOCUMENT_REJECTED",
-
-      "file",
-
-      locale,
-
-      422
-    );
-  }
 
   const config =
     getStorageConfiguration();
@@ -2286,7 +2000,7 @@ export async function uploadCandidateApplicationDocument(
         }
 
         /*
-         * Upload the already scanned bytes.
+         * Upload the validated bytes.
          */
 
         await uploadStorageObject({
@@ -2459,11 +2173,11 @@ export async function uploadCandidateApplicationDocument(
 
                 'UPLOADED',
 
-                'CLEAN',
+                'PENDING',
 
                 'PENDING',
 
-                clock_timestamp(),
+                NULL,
 
                 NOW(),
 

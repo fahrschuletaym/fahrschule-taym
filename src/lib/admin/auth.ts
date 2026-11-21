@@ -167,6 +167,12 @@ export function getAdminAuthDatabase(): Pool {
     });
   }
 
+  if (shared.__taymAdminAuthPool.listenerCount("error") === 0) {
+    shared.__taymAdminAuthPool.on("error", (error) => {
+      console.error("[TAYM][ADMIN][DATABASE_POOL]", { code: (error as NodeJS.ErrnoException).code });
+    });
+  }
+
   return shared.__taymAdminAuthPool;
 }
 

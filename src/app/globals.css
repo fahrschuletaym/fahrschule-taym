@@ -110,7 +110,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  scroll-padding-top: 115px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -1167,7 +1167,8 @@ html[dir="rtl"] .taym-table {
    ========================================================= */
 
 .taym-site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 80;
   width: 100%;
   font-family: Arial, Helvetica, sans-serif;
@@ -1494,6 +1495,10 @@ a.taym-header-contact-item:hover {
 /* TABLETTE ET MOBILE */
 
 @media (max-width: 1024px) {
+  html {
+    scroll-padding-top: 70px;
+  }
+
   .taym-header-topbar {
     display: none;
   }
@@ -2291,7 +2296,26 @@ a.taym-footer-contact-item:hover
 
 /* Navigation inf?rieure : r?serv?e aux petits ?crans. */
 .taym-mobile-bottom-nav { display: none; }
+.taym-whatsapp-button {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 49;
+  display: flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #16883c;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.taym-whatsapp-button:hover { background: #116e30; }
+.taym-whatsapp-button:focus-visible { outline: 3px solid #111820; outline-offset: 3px; }
 @media (max-width: 768px) {
+  .taym-whatsapp-button { right: 16px; bottom: calc(var(--taym-mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 12px); }
   .taym-mobile-bottom-nav { display: block; }
   .taym-mobile-nav-inner { display: flex; min-height: var(--taym-mobile-nav-height); align-items: center; justify-content: space-around; }
   .taym-mobile-nav-item { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #fff; text-decoration: none; font-size: 12px; }

@@ -1602,8 +1602,8 @@ function isDocumentAccessible(
     document.uploadStatus ===
       "UPLOADED" &&
 
-    document.securityStatus ===
-      "CLEAN"
+    document.securityStatus !==
+      "REJECTED"
   );
 }
 

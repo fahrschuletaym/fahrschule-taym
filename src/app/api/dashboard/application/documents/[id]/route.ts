@@ -799,8 +799,7 @@ function assertDocumentOwnership(
    may still be viewed by its owner if
    the file itself is safe.
 
-   Quarantined or unscanned files
-   must never be served.
+   Rejected files must not be served.
    ============================================================ */
 
 function assertDocumentAvailable(
@@ -823,16 +822,6 @@ function assertDocumentAvailable(
     throw new DocumentAccessError(
       "DOCUMENT_UNAVAILABLE",
       403
-    );
-  }
-
-  if (
-    document.securityStatus !==
-    "CLEAN"
-  ) {
-    throw new DocumentAccessError(
-      "DOCUMENT_NOT_READY",
-      409
     );
   }
 

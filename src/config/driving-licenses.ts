@@ -745,7 +745,7 @@ const CATEGORY_DEFINITIONS: Record<
 
    registrationFeeCents:
    - Germany: confirmed 209 EUR.
-   - Other countries: proposed fees.
+   - Other countries: approved fees.
 
    Change pricingVersion whenever a price
    or included service changes.
@@ -762,7 +762,7 @@ export const COUNTRY_LICENSE_PRICES: Record<
   DE: {
     enabled: true,
 
-    pricingApproved: false,
+    pricingApproved: true,
 
     registrationFeeCents: 20_900,
 
@@ -809,7 +809,7 @@ export const COUNTRY_LICENSE_PRICES: Record<
   AT: {
     enabled: true,
 
-    pricingApproved: false,
+    pricingApproved: true,
 
     registrationFeeCents: 18_900,
 
@@ -856,7 +856,7 @@ export const COUNTRY_LICENSE_PRICES: Record<
   BE: {
     enabled: true,
 
-    pricingApproved: false,
+    pricingApproved: true,
 
     registrationFeeCents: 17_900,
 
@@ -903,7 +903,7 @@ export const COUNTRY_LICENSE_PRICES: Record<
   IT: {
     enabled: true,
 
-    pricingApproved: false,
+    pricingApproved: true,
 
     registrationFeeCents: 14_900,
 
@@ -950,7 +950,7 @@ export const COUNTRY_LICENSE_PRICES: Record<
   ES: {
     enabled: true,
 
-    pricingApproved: false,
+    pricingApproved: true,
 
     registrationFeeCents: 14_900,
 

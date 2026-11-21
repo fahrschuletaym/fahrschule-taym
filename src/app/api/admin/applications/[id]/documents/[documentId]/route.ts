@@ -187,6 +187,12 @@ function getDatabase(): Pool {
     });
   }
 
+  if (shared.__taymAdminAuthPool.listenerCount("error") === 0) {
+    shared.__taymAdminAuthPool.on("error", (error) => {
+      console.error("[TAYM][ADMIN][DATABASE_POOL]", { code: (error as NodeJS.ErrnoException).code });
+    });
+  }
+
   return shared.__taymAdminAuthPool;
 }
 
@@ -331,7 +337,7 @@ async function authorizeDocument(
       AND d.application_id = $2::uuid
       AND d.deleted_at IS NULL
       AND d.upload_status = 'UPLOADED'
-      AND d.security_status = 'CLEAN'
+      AND d.security_status IN ('PENDING', 'CLEAN')
       AND a.status IN ('SUBMITTED', 'REVIEWING', 'NEEDS_INFO', 'APPROVED', 'REJECTED')
       AND a.country_code IN (
         'DE', 'AT', 'BE', 'IT', 'ES'

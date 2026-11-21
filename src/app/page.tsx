@@ -52,6 +52,7 @@ type HomeCopy = {
   eyebrow: string;
   heroTitle: string;
   heroDescription: string;
+  fastLicence: string;
   apply: string;
   discoverClasses: string;
 
@@ -83,12 +84,36 @@ type HomeCopy = {
   }[];
 };
 
+const centreCopy: Record<Locale, { title: string; description: string; alt: string }> = {
+  de: {
+    title: "Gemeinsam auf dem Weg zum Führerschein",
+    description: "Mit Fahrschule TAYM an deiner Seite.",
+    alt: "Zwei Personen neben einem Fahrzeug der Fahrschule TAYM in Berlin",
+  },
+  ar: {
+    title: "معًا في طريقك إلى رخصة القيادة",
+    description: "مدرسة TAYM لتعليم القيادة إلى جانبك.",
+    alt: "شخصان بجانب سيارة مدرسة TAYM لتعليم القيادة في برلين",
+  },
+  tr: {
+    title: "Ehliyet yolunda birlikte",
+    description: "Fahrschule TAYM yanınızda.",
+    alt: "Berlin'de Fahrschule TAYM aracının yanında iki kişi",
+  },
+  es: {
+    title: "Juntos en el camino hacia tu permiso de conducir",
+    description: "Fahrschule TAYM a tu lado.",
+    alt: "Dos personas junto a un vehículo de Fahrschule TAYM en Berlín",
+  },
+};
+
 /* =========================================================
    TRADUCTIONS DE LA PAGE D'ACCUEIL
    ========================================================= */
 
 const translations: Record<Locale, HomeCopy> = {
   de: {
+    fastLicence: "Dein Führerschein in weniger als 21 Tagen",
     eyebrow:
       "Ihre Fahrschule in Deutschland, Österreich, Belgien, Italien und Spanien",
 
@@ -230,6 +255,7 @@ const translations: Record<Locale, HomeCopy> = {
   },
 
   ar: {
+    fastLicence: "احصل على رخصة قيادتك في أقل من 21 يومًا",
     eyebrow:
       "مدرسة القيادة الخاصة بك في ألمانيا والنمسا وبلجيكا وإيطاليا وإسبانيا",
 
@@ -363,6 +389,7 @@ const translations: Record<Locale, HomeCopy> = {
   },
 
   tr: {
+    fastLicence: "Ehliyetinizi 21 günden kısa sürede alın",
     eyebrow:
       "Almanya, Avusturya, Belçika, İtalya ve İspanya'da sürücü kursunuz",
 
@@ -495,6 +522,7 @@ const translations: Record<Locale, HomeCopy> = {
   },
 
   es: {
+    fastLicence: "Obtén tu permiso de conducir en menos de 21 días",
     eyebrow:
       "Tu autoescuela en Alemania, Austria, Bélgica, Italia y España",
 
@@ -979,6 +1007,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section aria-label={t.fastLicence} className="border-b border-[#dce9cc] bg-[#f1f8e7] py-4 md:py-5">
+        <div className="taym-container">
+          <div className="flex items-center justify-center gap-3 text-center text-[#244b06]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d9edb3]" aria-hidden="true">
+              <CalendarDays size={21} />
+            </span>
+            <h2 className="text-base font-extrabold leading-snug sm:text-lg md:text-xl">{t.fastLicence}</h2>
+          </div>
+        </div>
+      </section>
+
       {/* ==================================================
           2. SERVICES RAPIDES
           PC : 6 / MOBILE : 4
@@ -1073,6 +1112,30 @@ export default function HomePage() {
       {/* ==================================================
           4. CATÉGORIES DE PERMIS
           ================================================== */}
+
+      <section className="bg-white py-3 md:py-5">
+        <div className="taym-container">
+          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-[#e2e8dd] bg-[#f1f8e7] md:grid md:grid-cols-2 md:items-center">
+            <Image
+              src="/images/centre.png"
+              alt={centreCopy[activeLocale].alt}
+              width={1448}
+              height={1086}
+              sizes="(max-width: 767px) 100vw, 512px"
+              className="block h-auto w-full"
+            />
+            <div className="hidden px-8 py-6 md:block lg:px-12">
+              <h2 className="text-2xl font-extrabold leading-tight text-[#172019] lg:text-3xl">
+                {centreCopy[activeLocale].title}
+              </h2>
+              <span className="mt-3 block h-1 w-12 rounded-full bg-[#79b912]" />
+              <p className="mt-4 text-sm leading-relaxed text-[#485147]">
+                {centreCopy[activeLocale].description}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="bg-white py-2 md:py-3">
         <div className="taym-container">
