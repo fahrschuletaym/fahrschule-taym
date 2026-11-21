@@ -79,6 +79,7 @@ type Profile = {
 
   firstName: string;
   lastName: string;
+  dateOfBirth: string;
 
   email: string;
   emailVerified: boolean;
@@ -97,6 +98,7 @@ type EditableProfile = Pick<
   Profile,
   | "firstName"
   | "lastName"
+  | "dateOfBirth"
   | "phoneE164"
   | "streetAddress"
   | "postalCode"
@@ -139,6 +141,7 @@ const ACCOUNT_API =
 const EMPTY_FORM: EditableProfile = {
   firstName: "",
   lastName: "",
+  dateOfBirth: "",
   phoneE164: "",
   streetAddress: "",
   postalCode: "",
@@ -828,6 +831,7 @@ function readProfile(
     "id",
     "firstName",
     "lastName",
+    "dateOfBirth",
     "email",
     "phoneE164",
     "streetAddress",
@@ -857,6 +861,7 @@ function readProfile(
     id: value.id as string,
     firstName: value.firstName as string,
     lastName: value.lastName as string,
+    dateOfBirth: value.dateOfBirth as string,
     email: value.email as string,
     emailVerified: value.emailVerified,
     phoneE164: value.phoneE164 as string,
@@ -913,6 +918,7 @@ function toEditable(
   return {
     firstName: profile.firstName,
     lastName: profile.lastName,
+    dateOfBirth: profile.dateOfBirth,
     phoneE164: profile.phoneE164,
     streetAddress:
       profile.streetAddress,
@@ -1648,6 +1654,7 @@ export default function AccountPage() {
       [
         "firstName",
         "lastName",
+        "dateOfBirth",
         "streetAddress",
         "postalCode",
         "city",
@@ -2281,6 +2288,14 @@ export default function AccountPage() {
                       )}
                     </div>
                   ))}
+
+                  {editing ? (
+                    <FormField label={{ de: "Geburtsdatum", ar: "تاريخ الميلاد", tr: "Doğum tarihi", es: "Fecha de nacimiento" }[locale]} htmlFor="account-date-of-birth" error={fieldErrorMessage(fieldErrors.dateOfBirth)}>
+                      <input id="account-date-of-birth" name="dateOfBirth" type="date" autoComplete="bday" value={form.dateOfBirth} onChange={(event) => updateField("dateOfBirth", event.target.value)} className={inputClass} />
+                    </FormField>
+                  ) : (
+                    <ReadOnlyField label={{ de: "Geburtsdatum", ar: "تاريخ الميلاد", tr: "Doğum tarihi", es: "Fecha de nacimiento" }[locale]} value={profile.dateOfBirth} icon={UserRound} locale={locale} />
+                  )}
 
                   <ReadOnlyField
                     label={t.country}

@@ -3088,6 +3088,8 @@ async function persistFinalApplication({
           reference = $3,
           application_number = $3,
 
+          date_of_birth = (SELECT date_of_birth FROM candidate_profiles WHERE user_id = $2::uuid),
+
           status = 'SUBMITTED',
 
           category = $4,

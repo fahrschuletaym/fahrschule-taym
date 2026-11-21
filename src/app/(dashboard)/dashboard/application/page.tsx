@@ -2551,6 +2551,34 @@ export default function DrivingLicenseApplicationPage() {
   const [locale, setLocale] =
     useState<Locale>("de");
 
+  const [birthDate, setBirthDate] = useState("");
+  const [birthDateMessage, setBirthDateMessage] = useState("");
+  const [birthDateSaving, setBirthDateSaving] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/dashboard/account", { cache: "no-store", signal: controller.signal })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => { if (typeof data?.profile?.dateOfBirth === "string") setBirthDate(data.profile.dateOfBirth); })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
+  async function saveBirthDate() {
+    setBirthDateSaving(true);
+    setBirthDateMessage("");
+    try {
+      const response = await fetch("/api/dashboard/account", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dateOfBirth: birthDate }),
+      });
+      if (!response.ok) throw new Error("SAVE_FAILED");
+      setBirthDateMessage(({ de: "Geburtsdatum gespeichert.", ar: "تم حفظ تاريخ الميلاد.", tr: "Doğum tarihi kaydedildi.", es: "Fecha de nacimiento guardada." })[locale]);
+    } catch {
+      setBirthDateMessage(({ de: "Das Geburtsdatum konnte nicht gespeichert werden.", ar: "تعذر حفظ تاريخ الميلاد.", tr: "Doğum tarihi kaydedilemedi.", es: "No se pudo guardar la fecha de nacimiento." })[locale]);
+    } finally { setBirthDateSaving(false); }
+  }
+
   const [page, setPage] =
     useState<ApplicationPageData | null>(null);
 
@@ -4435,6 +4463,13 @@ export default function DrivingLicenseApplicationPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4">
+              <Field label={{ de: "Geburtsdatum", ar: "تاريخ الميلاد", tr: "Doğum tarihi", es: "Fecha de nacimiento" }[locale]}>
+                <div className="flex flex-wrap gap-2">
+                  <input type="date" autoComplete="bday" value={birthDate} onChange={(event) => setBirthDate(event.target.value)} aria-label={{ de: "Geburtsdatum", ar: "تاريخ الميلاد", tr: "Doğum tarihi", es: "Fecha de nacimiento" }[locale]} className="min-h-12 min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm" />
+                  <button type="button" onClick={() => void saveBirthDate()} disabled={birthDateSaving || !birthDate} className="min-h-12 rounded-xl bg-green-800 px-4 text-sm font-bold text-white disabled:opacity-50">{{ de: "Speichern", ar: "حفظ", tr: "Kaydet", es: "Guardar" }[locale]}</button>
+                </div>
+                {birthDateMessage && <p role="status" className="mt-1 text-sm text-slate-700">{birthDateMessage}</p>}
+              </Field>
               <ReadOnlyField
                 label={t.firstName}
                 value={page.candidate.firstName}

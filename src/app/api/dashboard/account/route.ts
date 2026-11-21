@@ -130,6 +130,7 @@ type DatabaseProfile = {
   id: string;
   firstName: string | null;
   lastName: string | null;
+  dateOfBirth: string | null;
   email: string;
   emailVerified: boolean | Date | null;
   phoneE164: string | null;
@@ -177,6 +178,7 @@ function toPublicProfile(
 
     firstName: user.firstName ?? "",
     lastName: user.lastName ?? "",
+    dateOfBirth: user.dateOfBirth ?? "",
 
     email: user.email,
     emailVerified:
@@ -210,7 +212,7 @@ async function loadAccount(
     `SELECT u.id, u.first_name AS "firstName", u.last_name AS "lastName", u.email,
       u.email_verified_at AS "emailVerified", u.phone_e164 AS "phoneE164",
       u.phone_verified_at AS "phoneVerified", u.country_code AS "countryCode",
-      p.street_address AS "streetAddress", p.postal_code AS "postalCode", p.city,
+      to_char(p.date_of_birth, 'YYYY-MM-DD') AS "dateOfBirth", p.street_address AS "streetAddress", p.postal_code AS "postalCode", p.city,
       u.updated_at AS "updatedAt"
      FROM users u LEFT JOIN candidate_profiles p ON p.user_id = u.id WHERE u.id = $1`,
     [userId]
@@ -425,6 +427,7 @@ function createUpdateData(
   if (patch.lastName !== undefined) {
     data.lastName = patch.lastName;
   }
+  if (patch.dateOfBirth !== undefined) data.dateOfBirth = patch.dateOfBirth;
 
   if (
     patch.streetAddress !== undefined
@@ -593,6 +596,8 @@ export async function PATCH(
           lastName:
             currentProfile.lastName,
 
+          dateOfBirth: currentProfile.dateOfBirth,
+
           phoneE164:
             currentProfile.phoneE164,
 
@@ -691,12 +696,13 @@ export async function PATCH(
       );
       if (result.rowCount === 1) {
         await client.query(
-          `INSERT INTO candidate_profiles (id, user_id, street_address, postal_code, city, updated_at)
-           VALUES ($1, $2, $3, $4, $5, NOW())
+          `INSERT INTO candidate_profiles (id, user_id, street_address, postal_code, city, date_of_birth, updated_at)
+           VALUES ($1, $2, $3, $4, $5, NULLIF($6, '')::date, NOW())
            ON CONFLICT (user_id) DO UPDATE SET street_address = EXCLUDED.street_address,
-             postal_code = EXCLUDED.postal_code, city = EXCLUDED.city, updated_at = NOW()`,
+             postal_code = EXCLUDED.postal_code, city = EXCLUDED.city, date_of_birth = EXCLUDED.date_of_birth, updated_at = NOW()`,
           [randomUUID(), userId, updateData.streetAddress ?? currentUser.streetAddress,
-            updateData.postalCode ?? currentUser.postalCode, updateData.city ?? currentUser.city]
+            updateData.postalCode ?? currentUser.postalCode, updateData.city ?? currentUser.city,
+            updateData.dateOfBirth ?? currentUser.dateOfBirth ?? ""]
         );
         updated = true;
       }

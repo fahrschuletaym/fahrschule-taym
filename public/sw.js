@@ -37,12 +37,6 @@
    1. CONFIGURATION
    ============================================================ */
 
-const SW_VERSION = "1.0.0";
-
-const SW_NAME = "fahrschule-taym";
-
-const SW_ID = `${SW_NAME}-${SW_VERSION}`;
-
 /**
  * Chemins protégés.
  *

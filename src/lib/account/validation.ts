@@ -59,6 +59,7 @@ export type AccountCountry =
 export const ACCOUNT_EDITABLE_FIELDS = [
   "firstName",
   "lastName",
+  "dateOfBirth",
   "phoneE164",
   "streetAddress",
   "postalCode",
@@ -72,6 +73,7 @@ export type AccountProfilePatch =
   Partial<{
     firstName: string;
     lastName: string;
+    dateOfBirth: string;
     phoneE164: string;
     streetAddress: string;
     postalCode: string;
@@ -94,6 +96,7 @@ export type AccountProfile = {
 
   firstName: string;
   lastName: string;
+  dateOfBirth: string;
 
   email: string;
   emailVerified: boolean;
@@ -629,6 +632,13 @@ export function validateAccountField(
   country: AccountCountry
 ): FieldCheck {
   switch (field) {
+    case "dateOfBirth": {
+      if (typeof value !== "string") return { success: false, code: "INVALID_TYPE" };
+      if (value === "") return { success: true, value };
+      const date = new Date(`${value}T00:00:00.000Z`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value || value < "1900-01-01" || date.getTime() > Date.now()) return { success: false, code: "INVALID_CHARACTERS" };
+      return { success: true, value };
+    }
     case "firstName":
     case "lastName":
     case "streetAddress":
