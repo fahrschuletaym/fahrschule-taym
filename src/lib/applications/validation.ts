@@ -149,7 +149,7 @@ export const MIN_RESIDENTIAL_ADDRESS_LENGTH = 3;
 export const MIN_CITY_LENGTH = 2;
 
 export const GERMANY_REGISTRATION_FEE_CENTS =
-  20_900;
+  19_900;
 
 export const APPLICATION_CURRENCY =
   "EUR" as const;
@@ -2725,7 +2725,7 @@ function isValidMoneyAmount(
    No prices received from browser.
 
    Germany:
-   209 EUR registration fee.
+   199 EUR registration fee.
 
    Other countries:
    Fee from driving-licenses.ts.

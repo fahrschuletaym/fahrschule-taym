@@ -735,16 +735,14 @@ const CATEGORY_DEFINITIONS: Record<
 
    Example:
    320_000 = 3,200.00 EUR
-   20_900  =   209.00 EUR
+   19_900  =   199.00 EUR
 
-   Prices below are proposed TAYM tariffs.
-
-   pricingApproved remains false until
-   the operator confirms the commercial
-   prices and the actual training scope.
+   Prices below are TAYM training tariffs.
+   pricingApproved indicates whether the
+   operator has approved each country's tariffs.
 
    registrationFeeCents:
-   - Germany: confirmed 209 EUR.
+   - Germany: confirmed 199 EUR.
    - Other countries: approved fees.
 
    Change pricingVersion whenever a price
@@ -764,39 +762,39 @@ export const COUNTRY_LICENSE_PRICES: Record<
 
     pricingApproved: true,
 
-    registrationFeeCents: 20_900,
+    registrationFeeCents: 19_900,
 
     pricingVersion:
-      "DE-2026-11-v1",
+      "DE-2026-11-v2",
 
     trainingPricesCents: {
-      AM: 85_000,
+      AM: 64_900,
 
-      A1: 180_000,
+      A1: 124_900,
 
-      A2: 220_000,
+      A2: 150_000,
 
-      A: 250_000,
+      A: 124_900,
 
-      B: 320_000,
+      B: 149_900,
 
-      BE: 105_000,
+      BE: 99_900,
 
-      C1: 280_000,
+      C1: 219_900,
 
-      C1E: 180_000,
+      C1E: 149_900,
 
-      C: 350_000,
+      C: 269_900,
 
-      CE: 280_000,
+      CE: 109_900,
 
-      D1: 320_000,
+      D1: 290_000,
 
-      D1E: 220_000,
+      D1E: 159_000,
 
-      D: 450_000,
+      D: 349_900,
 
-      DE: 300_000,
+      DE: 249_900,
     },
 
     disabledCategories: [],
@@ -1671,7 +1669,7 @@ function assertCountryConfiguration(
   if (
     country === "DE" &&
 
-    fee !== 20_900
+    fee !== 19_900
   ) {
     throw new DrivingLicenseConfigurationError();
   }
