@@ -1,26 +1,2305 @@
+
 @import "tailwindcss";
 
+/* =========================================================
+   FAHRSCHULE TAYM
+   GLOBAL DESIGN SYSTEM
+   ========================================================= */
+
+/* 1. IDENTITÉ VISUELLE */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Couleurs principales */
+  --taym-green: #89c900;
+  --taym-green-light: #b8e64b;
+  --taym-green-dark: #386d07;
+  --taym-green-deep: #244b06;
+
+  --taym-gold: #c69b48;
+  --taym-gold-light: #e4c67a;
+
+  --taym-black: #111820;
+  --taym-dark: #1b2630;
+
+  --taym-white: #ffffff;
+  --taym-background: #f7f9f5;
+  --taym-surface: #ffffff;
+  --taym-surface-soft: #f1f6e9;
+
+  /* Textes */
+  --taym-text: #172019;
+  --taym-text-secondary: #59645c;
+  --taym-text-muted: #7c867e;
+
+  /* Bordures */
+  --taym-border: #e2e8dd;
+  --taym-border-strong: #ced9c5;
+
+  /* États */
+  --taym-success: #218447;
+  --taym-warning: #b97808;
+  --taym-danger: #cf3547;
+  --taym-info: #2474bc;
+
+  /* Dégradés */
+  --taym-gradient:
+    linear-gradient(
+      135deg,
+      #386d07 0%,
+      #76b900 55%,
+      #a4d92a 100%
+    );
+
+  --taym-gradient-dark:
+    linear-gradient(
+      135deg,
+      #111820 0%,
+      #26352b 100%
+    );
+
+  --taym-gradient-hero:
+    linear-gradient(
+      90deg,
+      rgba(166, 220, 50, 0.96) 0%,
+      rgba(196, 235, 113, 0.86) 38%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+
+  /* Dimensions */
+  --taym-container: 100%;
+  --taym-header-height: 76px;
+  --taym-mobile-nav-height: 68px;
+
+  /* Arrondis */
+  --taym-radius-sm: 8px;
+  --taym-radius-md: 12px;
+  --taym-radius-lg: 18px;
+  --taym-radius-xl: 24px;
+  --taym-radius-pill: 999px;
+
+  /* Ombres */
+  --taym-shadow-sm:
+    0 2px 8px rgba(17, 24, 32, 0.06);
+
+  --taym-shadow-md:
+    0 6px 22px rgba(17, 24, 32, 0.09);
+
+  --taym-shadow-lg:
+    0 12px 35px rgba(17, 24, 32, 0.13);
+
+  /* Animations */
+  --taym-transition: 180ms ease;
+  --taym-transition-slow: 300ms ease;
+
+  /* Compatibilité Next.js / Tailwind */
+  --background: var(--taym-background);
+  --foreground: var(--taym-text);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 2. CONFIGURATION TAILWIND V4 */
+
+
+
+/* 3. BASE GLOBALE */
+
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  margin: 0;
+  min-height: 100vh;
+  background: var(--taym-background);
+  color: var(--taym-text);
   font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+img {
+  display: block;
+}
+
+button {
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--taym-green);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--taym-green-light);
+  color: var(--taym-black);
+}
+
+/* 4. TYPOGRAPHIE */
+
+.taym-title {
+  color: var(--taym-black);
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.taym-section-title {
+  color: var(--taym-black);
+  font-size: clamp(22px, 2.2vw, 32px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.taym-subtitle {
+  color: var(--taym-text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.taym-text-muted {
+  color: var(--taym-text-muted);
+}
+
+.taym-text-green {
+  color: var(--taym-green-dark);
+}
+
+.taym-text-gold {
+  color: var(--taym-gold);
+}
+
+.taym-section-heading {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.taym-section-heading::after {
+  content: "";
+  display: block;
+  width: 55px;
+  height: 4px;
+  margin: 10px auto 0;
+  border-radius: var(--taym-radius-pill);
+  background: var(--taym-green);
+}
+
+/* 5. STRUCTURE DES PAGES */
+
+.taym-container {
+  width: min(
+    calc(100% - 40px),
+    var(--taym-container)
+  );
+  margin-inline: auto;
+}
+
+.taym-section {
+  padding-block: 55px;
+}
+
+.taym-section-sm {
+  padding-block: 30px;
+}
+
+.taym-page {
+  min-height: 100vh;
+}
+
+.taym-surface {
+  background: var(--taym-white);
+}
+
+.taym-surface-soft {
+  background: var(--taym-surface-soft);
+}
+
+.taym-dark-section {
+  background: var(--taym-gradient-dark);
+  color: var(--taym-white);
+}
+
+/* 6. BOUTONS */
+
+.taym-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--taym-radius-md);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transition:
+    background var(--taym-transition),
+    color var(--taym-transition),
+    border-color var(--taym-transition),
+    box-shadow var(--taym-transition),
+    transform var(--taym-transition);
+}
+
+.taym-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.taym-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.taym-btn-primary {
+  background: var(--taym-gradient);
+  color: var(--taym-white);
+  box-shadow: var(--taym-shadow-sm);
+}
+
+.taym-btn-primary:hover:not(:disabled) {
+  box-shadow: var(--taym-shadow-md);
+  filter: brightness(0.96);
+}
+
+.taym-btn-dark {
+  background: var(--taym-black);
+  color: var(--taym-white);
+}
+
+.taym-btn-dark:hover:not(:disabled) {
+  background: var(--taym-dark);
+}
+
+.taym-btn-outline {
+  border-color: var(--taym-green-dark);
+  background: var(--taym-white);
+  color: var(--taym-green-dark);
+}
+
+.taym-btn-outline:hover:not(:disabled) {
+  background: var(--taym-surface-soft);
+}
+
+.taym-btn-white {
+  background: var(--taym-white);
+  color: var(--taym-black);
+  box-shadow: var(--taym-shadow-sm);
+}
+
+.taym-btn-white:hover:not(:disabled) {
+  background: var(--taym-surface-soft);
+}
+
+.taym-btn-sm {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.taym-btn-lg {
+  min-height: 50px;
+  padding: 13px 25px;
+  font-size: 15px;
+}
+
+.taym-btn-full {
+  width: 100%;
+}
+
+/* 7. CARTES */
+
+.taym-card {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--taym-white);
+  border: 1px solid var(--taym-border);
+  border-radius: var(--taym-radius-lg);
+  box-shadow: var(--taym-shadow-sm);
+}
+
+.taym-card-hover {
+  transition:
+    transform var(--taym-transition),
+    box-shadow var(--taym-transition),
+    border-color var(--taym-transition);
+}
+
+.taym-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: var(--taym-border-strong);
+  box-shadow: var(--taym-shadow-md);
+}
+
+.taym-card-body {
+  padding: 20px;
+}
+
+.taym-card-title {
+  color: var(--taym-black);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+/* 8. GRILLES RÉUTILISABLES */
+
+.taym-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.taym-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.taym-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.taym-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.taym-grid-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+/* 9. FORMULAIRES */
+
+.taym-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.taym-label {
+  color: var(--taym-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.taym-input,
+.taym-select,
+.taym-textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 11px 14px;
+  color: var(--taym-text);
+  background: var(--taym-white);
+  border: 1px solid var(--taym-border-strong);
+  border-radius: var(--taym-radius-md);
+  outline: none;
+  transition:
+    border-color var(--taym-transition),
+    box-shadow var(--taym-transition);
+}
+
+.taym-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.taym-input::placeholder,
+.taym-textarea::placeholder {
+  color: var(--taym-text-muted);
+}
+
+.taym-input:focus,
+.taym-select:focus,
+.taym-textarea:focus {
+  border-color: var(--taym-green-dark);
+  box-shadow: 0 0 0 3px rgba(137, 201, 0, 0.16);
+}
+
+.taym-input[aria-invalid="true"],
+.taym-select[aria-invalid="true"],
+.taym-textarea[aria-invalid="true"] {
+  border-color: var(--taym-danger);
+}
+
+.taym-form-error {
+  color: var(--taym-danger);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.taym-form-help {
+  color: var(--taym-text-muted);
+  font-size: 12px;
+}
+
+/* 10. BADGES ET STATUTS */
+
+.taym-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--taym-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.taym-badge-green {
+  background: #e7f5d6;
+  color: #286508;
+}
+
+.taym-badge-gold {
+  background: #fcf1d7;
+  color: #806016;
+}
+
+.taym-badge-red {
+  background: #fde8eb;
+  color: #a52b3b;
+}
+
+.taym-badge-blue {
+  background: #e4f1ff;
+  color: #195d9c;
+}
+
+/* 11. NAVIGATION ET EN-TÊTE */
+
+.taym-topbar {
+  background: var(--taym-gradient);
+  color: var(--taym-white);
+  font-size: 12px;
+}
+
+.taym-header {
+  position: relative;
+  z-index: 40;
+  background: var(--taym-black);
+  color: var(--taym-white);
+}
+
+.taym-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: var(--taym-header-height);
+}
+
+.taym-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 220px;
+}
+
+.taym-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.taym-nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.taym-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--taym-white);
+  font-size: 13px;
+  font-weight: 600;
+  transition: color var(--taym-transition);
+}
+
+.taym-nav-link:hover,
+.taym-nav-link.active,
+.taym-nav-link[aria-current="page"] {
+  color: var(--taym-green-light);
+}
+
+/* 12. HERO ET IMAGES */
+
+.taym-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--taym-gradient-hero);
+}
+
+.taym-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.taym-hero-title {
+  color: var(--taym-black);
+  font-size: clamp(30px, 4.5vw, 58px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.taym-hero-description {
+  max-width: 560px;
+  color: var(--taym-text);
+  font-size: clamp(14px, 1.5vw, 17px);
+  line-height: 1.65;
+}
+
+.taym-image-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.taym-image-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 13. TABLEAUX ET DONNÉES */
+
+.taym-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--taym-white);
+  border: 1px solid var(--taym-border);
+  border-radius: var(--taym-radius-lg);
+}
+
+.taym-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+  font-size: 13px;
+}
+
+.taym-table th,
+.taym-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--taym-border);
+  text-align: start;
+}
+
+.taym-table th {
+  background: var(--taym-surface-soft);
+  color: var(--taym-text-secondary);
+  font-weight: 700;
+}
+
+.taym-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.taym-table tbody tr:hover {
+  background: #fafcf7;
+}
+
+/* 14. NOTIFICATIONS */
+
+.taym-alert {
+  padding: 13px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--taym-radius-md);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.taym-alert-success {
+  background: #e9f7ed;
+  border-color: #b9e4c4;
+  color: #185f32;
+}
+
+.taym-alert-error {
+  background: #fff0f1;
+  border-color: #f2c6cc;
+  color: #a42b3a;
+}
+
+.taym-alert-warning {
+  background: #fff7e5;
+  border-color: #f2db9a;
+  color: #805500;
+}
+
+.taym-alert-info {
+  background: #edf5ff;
+  border-color: #c5ddfa;
+  color: #205d98;
+}
+
+/* 15. CHARGEMENT */
+
+@keyframes taym-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.taym-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(137, 201, 0, 0.25);
+  border-top-color: var(--taym-green-dark);
+  border-radius: 50%;
+  animation: taym-spin 750ms linear infinite;
+}
+
+/* 16. SUPPORT MULTILINGUE */
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="rtl"] body {
+  font-family: Arial, Tahoma, sans-serif;
+}
+
+html[dir="rtl"] .taym-table {
+  text-align: start;
+}
+
+.taym-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.taym-rtl {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* 17. ACCESSIBILITÉ */
+
+.taym-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 18. TABLETTES */
+
+@media (max-width: 1024px) {
+  .taym-container {
+    width: min(
+      calc(100% - 32px),
+      var(--taym-container)
+    );
+  }
+
+  .taym-grid-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .taym-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .taym-nav {
+    gap: 12px;
+  }
+
+  .taym-section {
+    padding-block: 42px;
+  }
+}
+
+/* 19. MOBILE */
+
+@media (max-width: 768px) {
+  :root {
+    --taym-header-height: 64px;
+  }
+
+  html {
+    scroll-padding-top: 70px;
+  }
+
+  body {
+    font-size: 13px;
+  }
+
+  .taym-container {
+    width: calc(100% - 24px);
+  }
+
+  .taym-section {
+    padding-block: 32px;
+  }
+
+  .taym-section-sm {
+    padding-block: 20px;
+  }
+
+  .taym-section-heading {
+    margin-bottom: 20px;
+  }
+
+  .taym-grid {
+    gap: 12px;
+  }
+
+  .taym-grid-3,
+  .taym-grid-4,
+  .taym-grid-6 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .taym-card-body {
+    padding: 14px;
+  }
+
+  .taym-card-title {
+    font-size: 14px;
+  }
+
+  .taym-logo {
+    max-width: 160px;
+  }
+
+  .taym-btn {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .taym-hero-title {
+    font-size: clamp(28px, 7vw, 42px);
+  }
+
+  .taym-hero-description {
+    font-size: 13px;
+  }
+
+  .taym-table {
+    min-width: 550px;
+  }
+
+  .taym-mobile-bottom-nav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 50;
+    min-height: var(--taym-mobile-nav-height);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--taym-black);
+    color: var(--taym-white);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 20. PETITS TÉLÉPHONES */
+
+@media (max-width: 480px) {
+  .taym-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .taym-grid-3,
+  .taym-grid-4,
+  .taym-grid-6 {
+    gap: 10px;
+  }
+
+  .taym-card-body {
+    padding: 12px;
+  }
+
+  .taym-title {
+    font-size: 27px;
+  }
+
+  .taym-section-title {
+    font-size: 22px;
+  }
+
+  .taym-hero-title {
+    font-size: 30px;
+  }
+}
+
+/* 21. TRÈS PETITS ÉCRANS */
+
+@media (max-width: 360px) {
+  .taym-container {
+    width: calc(100% - 20px);
+  }
+
+  .taym-grid {
+    gap: 8px;
+  }
+
+  .taym-logo {
+    max-width: 135px;
+  }
+
+  .taym-btn {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   FAHRSCHULE TAYM
+   LANGUAGE SWITCHER - DESKTOP & MOBILE
+   ========================================================= */
+
+.taym-language-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* DESKTOP */
+
+.taym-language-desktop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.taym-language-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 29px;
+  padding: 4px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #172019;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.taym-language-pill:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.taym-language-pill.is-active {
+  background: #ffffff;
+  border-color: #386d07;
+  box-shadow: 0 0 0 1px rgba(56, 109, 7, 0.13);
+}
+
+.taym-language-pill svg {
+  color: #386d07;
+  flex-shrink: 0;
+}
+
+.taym-language-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.taym-language-name {
+  display: inline-block;
+  line-height: 1.3;
+}
+
+/* MOBILE */
+
+.taym-language-mobile {
+  display: none;
+  position: relative;
+}
+
+.taym-language-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  min-width: 65px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: #1b2630;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.taym-language-trigger:hover,
+.taym-language-trigger.is-open {
+  background: #26352b;
+  border-color: #89c900;
+}
+
+.taym-language-trigger-flag {
+  display: inline-flex;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.taym-language-code {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.taym-language-chevron {
+  flex-shrink: 0;
+  transition: transform 180ms ease;
+}
+
+.taym-language-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* MENU DÉROULANT */
+
+.taym-language-dropdown {
+  position: absolute;
+  z-index: 200;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 205px;
+  padding: 7px;
+  border: 1px solid #e2e8dd;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #172019;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.taym-language-dropdown-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e2e8dd;
+  color: #59645c;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.taym-language-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #172019;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.taym-language-option:hover {
+  background: #f1f6e9;
+}
+
+.taym-language-option.is-active {
+  background: #e7f5d6;
+  color: #286508;
+}
+
+.taym-language-option-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.taym-language-option-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.taym-language-option svg {
+  flex-shrink: 0;
+  color: #386d07;
+}
+
+.taym-language-pill:focus-visible,
+.taym-language-trigger:focus-visible,
+.taym-language-option:focus-visible {
+  outline: 3px solid #89c900;
+  outline-offset: 2px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .taym-language-desktop {
+    display: none;
+  }
+
+  .taym-language-mobile {
+    display: block;
+  }
+}
+
+@media (max-width: 360px) {
+  .taym-language-trigger {
+    min-width: 59px;
+    padding-inline: 6px;
+    gap: 4px;
+  }
+
+  .taym-language-dropdown {
+    width: 190px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taym-language-pill,
+  .taym-language-trigger,
+  .taym-language-option,
+  .taym-language-chevron {
+    transition: none;
+  }
+}
+
+
+/* =========================================================
+   FAHRSCHULE TAYM
+   HEADER DESKTOP & MOBILE
+   ========================================================= */
+
+.taym-site-header {
+  position: relative;
+  z-index: 80;
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* BARRE SUPÉRIEURE VERTE */
+
+.taym-header-topbar {
+  min-height: 34px;
+  background: linear-gradient(
+    90deg,
+    #659f00 0%,
+    #8bc400 50%,
+    #72ab00 100%
+  );
+  color: #ffffff;
+}
+
+.taym-header-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 34px;
+}
+
+.taym-header-contact {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0;
+}
+
+.taym-header-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 23px;
+  padding-inline: 15px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.taym-header-contact-item:first-child {
+  padding-inline-start: 0;
+}
+
+.taym-header-contact-item + .taym-header-contact-item {
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.taym-header-contact-item svg {
+  flex-shrink: 0;
+}
+
+a.taym-header-contact-item:hover {
+  color: #efffca;
+}
+
+/* NAVIGATION PRINCIPALE NOIRE */
+
+.taym-header-main {
+  position: relative;
+  background: linear-gradient(
+    110deg,
+    #101820 0%,
+    #171e24 65%,
+    #0b1118 100%
+  );
+  color: #ffffff;
+}
+
+.taym-header-main-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 69px;
+}
+
+/* LOGO */
+
+.taym-header-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  flex: 0 0 auto;
+  width: 228px;
+  padding: 6px 19px 6px 10px;
+  background: #ffffff;
+  text-decoration: none;
+  clip-path: polygon(
+    11% 0,
+    100% 0,
+    89% 100%,
+    0 100%
+  );
+}
+
+.taym-header-brand-image {
+  display: block;
+  width: 190px;
+  height: auto;
+  max-height: 58px;
+  object-fit: contain;
+}
+
+/* MENU PC */
+
+.taym-header-desktop-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: clamp(8px, 1.1vw, 21px);
+}
+
+.taym-header-nav-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  min-height: 69px;
+}
+
+.taym-header-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 69px;
+  color: #f5f7f2;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.taym-header-nav-link:hover,
+.taym-header-nav-group.is-active
+.taym-header-nav-link {
+  color: #b5eb5c;
+}
+
+.taym-header-nav-group.is-active
+.taym-header-nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 10px;
+  height: 3px;
+  border-radius: 8px;
+  background: #9ddc22;
+}
+
+/* SOUS-MENUS PC */
+
+.taym-header-nav-dropdown {
+  position: absolute;
+  top: calc(100% - 1px);
+  inset-inline-start: -13px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  padding: 8px;
+  border: 1px solid #e2e8dd;
+  border-radius: 0 0 13px 13px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms ease;
+}
+
+.taym-header-nav-group:hover
+.taym-header-nav-dropdown,
+.taym-header-nav-group:focus-within
+.taym-header-nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.taym-header-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 41px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #172019;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.taym-header-dropdown-link svg {
+  flex-shrink: 0;
+  color: #386d07;
+}
+
+.taym-header-dropdown-link:hover {
+  background: #edf6df;
+  color: #386d07;
+}
+
+/* BOUTONS CONNEXION / INSCRIPTION */
+
+.taym-header-desktop-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.taym-header-login,
+.taym-header-register {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.taym-header-login {
+  border: 1px solid #788087;
+  background: transparent;
+  color: #ffffff;
+}
+
+.taym-header-login:hover {
+  background: #27333d;
+  color: #ffffff;
+}
+
+.taym-header-register {
+  border: 1px solid #619c05;
+  background: linear-gradient(
+    135deg,
+    #9be025,
+    #6eb600
+  );
+  color: #14200b;
+  box-shadow: 0 2px 7px rgba(93, 166, 0, 0.23);
+}
+
+.taym-header-register:hover {
+  background: #b2ef43;
+  color: #14200b;
+}
+
+/* ACTIONS MOBILE : MASQUÉES SUR PC */
+
+.taym-header-mobile-actions,
+.taym-header-mobile-panel {
+  display: none;
+}
+
+/* ÉCRANS PC INTERMÉDIAIRES */
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .taym-header-brand {
+    width: 190px;
+  }
+
+  .taym-header-brand-image {
+    width: 165px;
+  }
+
+  .taym-header-desktop-nav {
+    gap: 9px;
+  }
+
+  .taym-header-nav-link {
+    font-size: 10px;
+  }
+
+  .taym-header-desktop-actions {
+    gap: 5px;
+  }
+
+  .taym-header-login,
+  .taym-header-register {
+    padding-inline: 8px;
+    font-size: 10px;
+  }
+
+  .taym-header-contact-item {
+    padding-inline: 8px;
+    font-size: 10px;
+  }
+}
+
+/* TABLETTE ET MOBILE */
+
+@media (max-width: 1024px) {
+  .taym-header-topbar {
+    display: none;
+  }
+
+  .taym-header-desktop-nav,
+  .taym-header-desktop-actions {
+    display: none;
+  }
+
+  .taym-header-main-inner {
+    min-height: 65px;
+  }
+
+  .taym-header-mobile-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-inline-start: auto;
+  }
+
+  .taym-header-mobile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .taym-header-mobile-icon:hover,
+  .taym-header-mobile-icon.is-open {
+    color: #a5e52e;
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .taym-header-mobile-panel {
+    position: absolute;
+    top: 100%;
+    inset-inline: 0;
+    z-index: 110;
+    display: block;
+    max-height: calc(100dvh - 65px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    color: #172019;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.17);
+  }
+
+  .taym-header-mobile-panel-inner {
+    width: min(100% - 24px, 600px);
+    margin-inline: auto;
+    padding: 15px 0 22px;
+  }
+
+  .taym-header-mobile-welcome {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px;
+    margin-bottom: 12px;
+    border-radius: 11px;
+    background: #edf6df;
+    color: #244b06;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .taym-header-mobile-welcome-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #d8efbc;
+  }
+
+  .taym-header-mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .taym-header-mobile-nav-group {
+    overflow: hidden;
+    border: 1px solid #e7ece3;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .taym-header-mobile-nav-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 47px;
+  }
+
+  .taym-header-mobile-nav-row.is-active {
+    background: #edf6df;
+  }
+
+  .taym-header-mobile-nav-link {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 12px;
+    padding: 12px 13px;
+    color: #172019;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .taym-header-mobile-nav-link svg {
+    flex-shrink: 0;
+    color: #386d07;
+  }
+
+  .taym-header-mobile-nav-row.is-active
+  .taym-header-mobile-nav-link {
+    color: #386d07;
+  }
+
+  .taym-header-mobile-submenu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    padding: 0;
+    border-inline-start: 1px solid #e7ece3;
+    background: transparent;
+    color: #386d07;
+    cursor: pointer;
+  }
+
+  .taym-header-mobile-submenu-trigger svg {
+    transition: transform 180ms ease;
+  }
+
+  .taym-header-mobile-submenu-trigger svg.is-open {
+    transform: rotate(180deg);
+  }
+
+  .taym-header-mobile-submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 7px;
+    border-top: 1px solid #e7ece3;
+    background: #fafcf7;
+  }
+
+  .taym-header-mobile-submenu-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: #334235;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .taym-header-mobile-submenu-link:hover {
+    background: #e7f5d6;
+    color: #244b06;
+  }
+
+  .taym-header-mobile-submenu-link svg {
+    flex-shrink: 0;
+    color: #386d07;
+  }
+
+  .taym-header-mobile-submenu-arrow {
+    margin-inline-start: auto;
+  }
+
+  html[dir="rtl"]
+  .taym-header-mobile-submenu-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* ACTIONS D'AUTHENTIFICATION */
+
+  .taym-header-mobile-auth {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .taym-header-mobile-auth .taym-header-login,
+  .taym-header-mobile-auth .taym-header-register {
+    min-height: 45px;
+    font-size: 12px;
+  }
+
+  .taym-header-mobile-auth .taym-header-login {
+    border-color: #d2dcd0;
+    background: #111820;
+    color: #ffffff;
+  }
+
+  .taym-header-mobile-auth .taym-header-register {
+    color: #14200b;
+  }
+
+  /* CONTACT MOBILE */
+
+  .taym-header-mobile-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 5px 0;
+    margin-top: 15px;
+    border-top: 1px solid #e2e8dd;
+  }
+
+  .taym-header-mobile-contact a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #59645c;
+    font-size: 12px;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .taym-header-mobile-contact a svg {
+    flex-shrink: 0;
+    color: #386d07;
+  }
+}
+
+/* PETITS ÉCRANS MOBILE */
+
+@media (max-width: 768px) {
+  .taym-header-main-inner {
+    min-height: 62px;
+    gap: 8px;
+  }
+
+  .taym-header-brand {
+    width: 166px;
+    padding: 6px 13px 6px 5px;
+  }
+
+  .taym-header-brand-image {
+    width: 144px;
+    max-height: 48px;
+  }
+
+  .taym-header-mobile-actions {
+    gap: 4px;
+  }
+
+  .taym-header-mobile-icon {
+    width: 32px;
+    height: 34px;
+  }
+
+  .taym-header-mobile-panel {
+    max-height: calc(100dvh - 62px);
+  }
+}
+
+@media (max-width: 390px) {
+  .taym-header-brand {
+    width: 145px;
+  }
+
+  .taym-header-brand-image {
+    width: 125px;
+  }
+
+  .taym-header-mobile-actions {
+    gap: 2px;
+  }
+
+  .taym-header-mobile-icon {
+    width: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taym-header-nav-dropdown,
+  .taym-header-nav-link,
+  .taym-header-mobile-icon,
+  .taym-header-mobile-submenu-trigger svg {
+    transition: none;
+  }
+}
+
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .taym-header-mobile-actions .taym-language-desktop {
+    display: none;
+  }
+
+  .taym-header-mobile-actions .taym-language-mobile {
+    display: block;
+  }
+}
+
+
+/* =========================================================
+   FAHRSCHULE TAYM
+   FOOTER OFFICIEL - DESKTOP & MOBILE
+   ========================================================= */
+
+.taym-footer {
+  position: relative;
+  width: 100%;
+  background: var(--taym-black);
+  color: #f5f7f2;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.taym-footer-accent {
+  width: 100%;
+  height: 5px;
+  background: var(--taym-gradient);
+}
+
+/* STRUCTURE PRINCIPALE */
+
+.taym-footer-main {
+  padding: 48px 0 40px;
+  background: linear-gradient(
+    135deg,
+    #111820 0%,
+    #1b2630 65%,
+    #142016 100%
+  );
+}
+
+.taym-footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.15fr 1.3fr;
+  gap: 36px;
+  align-items: start;
+}
+
+.taym-footer-column,
+.taym-footer-brand-column {
+  min-width: 0;
+}
+
+/* LOGO ET IDENTITÉ */
+
+.taym-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 224px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.taym-footer-logo-image {
+  display: block;
+  width: 200px;
+  height: auto;
+  max-height: 70px;
+  object-fit: contain;
+}
+
+.taym-footer-description {
+  max-width: 350px;
+  margin: 18px 0 14px;
+  color: #c6d0ca;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.taym-footer-tagline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: #b8e64b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.taym-footer-tagline svg {
+  flex-shrink: 0;
+}
+
+/* PAYS */
+
+.taym-footer-country-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 14px;
+  border: 1px solid rgba(137, 201, 0, 0.2);
+  border-radius: 12px;
+  background: rgba(137, 201, 0, 0.07);
+}
+
+.taym-footer-country-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b8e64b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.taym-footer-country-list {
+  color: #d4dcd4;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* TITRES DES COLONNES */
+
+.taym-footer-heading {
+  position: relative;
+  margin: 8px 0 22px;
+  padding-bottom: 13px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.taym-footer-heading::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 42px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--taym-green);
+}
+
+/* LIENS */
+
+.taym-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taym-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #c6d0ca;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.taym-footer-link svg {
+  flex-shrink: 0;
+  color: #95ca43;
+}
+
+.taym-footer-link:hover {
+  color: #b8e64b;
+  transform: translateX(3px);
+}
+
+html[dir="rtl"] .taym-footer-link:hover {
+  transform: translateX(-3px);
+}
+
+/* BADGE SERVICE */
+
+.taym-footer-online-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 23px;
+  padding: 9px 13px;
+  border: 1px solid rgba(137, 201, 0, 0.28);
+  border-radius: 999px;
+  background: rgba(137, 201, 0, 0.1);
+  color: #c8ee91;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* CONTACT */
+
+.taym-footer-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.taym-footer-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  color: #d4dcd4;
+  text-decoration: none;
+}
+
+.taym-footer-contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(137, 201, 0, 0.17);
+  border-radius: 10px;
+  background: rgba(137, 201, 0, 0.1);
+  color: #a5df4a;
+}
+
+.taym-footer-contact-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.taym-footer-contact-label {
+  color: #aebdb1;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.taym-footer-contact-value {
+  display: inline-block;
+  color: #e3ebe4;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+a.taym-footer-contact-item:hover
+.taym-footer-contact-value {
+  color: #b8e64b;
+}
+
+/* BOUTON CONTACT */
+
+.taym-footer-contact-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  width: fit-content;
+  padding: 10px 17px;
+  margin-top: 4px;
+  border: 1px solid #75ae19;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    #a1de32,
+    #70b410
+  );
+  color: #14200b;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.taym-footer-contact-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(137, 201, 0, 0.2);
+}
+
+/* BARRE INFÉRIEURE */
+
+.taym-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0c131a;
+}
+
+.taym-footer-bottom-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  min-height: 70px;
+  padding-block: 16px;
+}
+
+.taym-footer-copyright {
+  margin: 0;
+  color: #b4c0b8;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.taym-footer-legal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 19px;
+}
+
+.taym-footer-legal a {
+  color: #bdc9c0;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.taym-footer-legal a:hover {
+  color: #b8e64b;
+}
+
+/* RETOUR EN HAUT */
+
+.taym-footer-back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 35px;
+  padding: 7px 11px;
+  border: 1px solid rgba(137, 201, 0, 0.4);
+  border-radius: 9px;
+  background: rgba(137, 201, 0, 0.08);
+  color: #b8e64b;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.taym-footer-back-to-top:hover {
+  background: rgba(137, 201, 0, 0.18);
+}
+
+/* TABLETTES */
+
+@media (max-width: 1100px) {
+  .taym-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 34px 28px;
+  }
+
+  .taym-footer-main {
+    padding-block: 38px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+  .taym-footer-main {
+    padding: 30px 0 28px;
+  }
+
+  .taym-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 15px;
+  }
+
+  .taym-footer-brand-column {
+    grid-column: 1 / -1;
+  }
+
+  .taym-footer-logo {
+    max-width: 192px;
+  }
+
+  .taym-footer-logo-image {
+    width: 172px;
+  }
+
+  .taym-footer-description {
+    max-width: 100%;
+    margin-top: 14px;
+    font-size: 12px;
+  }
+
+  .taym-footer-heading {
+    margin: 0 0 17px;
+    font-size: 14px;
+  }
+
+  .taym-footer-links {
+    gap: 12px;
+  }
+
+  .taym-footer-link {
+    font-size: 11px;
+  }
+
+  .taym-footer-column:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .taym-footer-contacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .taym-footer-contact-button {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .taym-footer-bottom-inner {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding-block: 20px;
+    text-align: center;
+  }
+
+  .taym-footer-legal {
+    justify-content: center;
+  }
+
+  .taym-footer-back-to-top {
+    align-self: center;
+  }
+
+  .taym-footer-bottom {
+    padding-bottom: calc(
+      68px + env(safe-area-inset-bottom, 0px)
+    );
+  }
+}
+
+/* PETITS TÉLÉPHONES */
+
+@media (max-width: 400px) {
+  .taym-footer-grid {
+    gap: 24px 12px;
+  }
+
+  .taym-footer-contacts {
+    grid-template-columns: 1fr;
+  }
+
+  .taym-footer-link {
+    gap: 6px;
+  }
+
+  .taym-footer-country-box {
+    padding: 12px;
+  }
+
+  .taym-footer-contact-item {
+    gap: 9px;
+  }
+}
+
+/* ACCESSIBILITÉ */
+
+@media (prefers-reduced-motion: reduce) {
+  .taym-footer-link,
+  .taym-footer-contact-button,
+  .taym-footer-back-to-top {
+    transition: none;
+  }
+}
+
+/* Navigation inf?rieure : r?serv?e aux petits ?crans. */
+.taym-mobile-bottom-nav { display: none; }
+@media (max-width: 768px) {
+  .taym-mobile-bottom-nav { display: block; }
+  .taym-mobile-nav-inner { display: flex; min-height: var(--taym-mobile-nav-height); align-items: center; justify-content: space-around; }
+  .taym-mobile-nav-item { display: flex; flex: 1; min-width: 0; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #fff; text-decoration: none; font-size: 12px; }
+  .taym-mobile-nav-item.is-active { color: #b8e64b; }
+  .taym-mobile-nav-icon { display: flex; }
+}
+
+/* Le pied de page du compte reste visible uniquement sur grand ?cran. */
+@media (max-width: 768px) {
+  .taym-footer--dashboard { display: none; }
 }

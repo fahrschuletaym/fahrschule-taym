@@ -1,0 +1,26 @@
+
+{
+  "common": {
+    "brand": "Fahrschule TAYM",
+    "home": "الرئيسية",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "account": "حسابي",
+    "dashboard": "لوحة التحكم",
+    "contact": "اتصل بنا",
+    "about": "من نحن",
+    "services": "خدماتنا",
+    "continue": "متابعة",
+    "back": "رجوع",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "loading": "جارٍ التحميل...",
+    "error": "حدث خطأ",
+    "success": "تم بنجاح",
+    "language": "اللغة",
+    "country": "البلد"
+  }
+}
+  

@@ -1,0 +1,26 @@
+
+{
+  "common": {
+    "brand": "Fahrschule TAYM",
+    "home": "Inicio",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "logout": "Cerrar sesión",
+    "account": "Mi cuenta",
+    "dashboard": "Panel de control",
+    "contact": "Contacto",
+    "about": "Sobre nosotros",
+    "services": "Nuestros servicios",
+    "continue": "Continuar",
+    "back": "Volver",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "loading": "Cargando...",
+    "error": "Se ha producido un error",
+    "success": "Completado correctamente",
+    "language": "Idioma",
+    "country": "País"
+  }
+}
+  

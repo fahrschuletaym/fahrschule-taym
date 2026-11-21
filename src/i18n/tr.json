@@ -1,0 +1,26 @@
+
+{
+  "common": {
+    "brand": "Fahrschule TAYM",
+    "home": "Ana Sayfa",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "account": "Hesabım",
+    "dashboard": "Kontrol Paneli",
+    "contact": "İletişim",
+    "about": "Hakkımızda",
+    "services": "Hizmetlerimiz",
+    "continue": "Devam Et",
+    "back": "Geri",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "confirm": "Onayla",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "success": "Başarılı",
+    "language": "Dil",
+    "country": "Ülke"
+  }
+}
+  
