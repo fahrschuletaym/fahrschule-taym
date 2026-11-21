@@ -244,6 +244,8 @@ function checkOrigin(request: NextRequest): void {
 
   if (!origin) return;
 
+  if (process.env.NODE_ENV === "production" && origin === "https://fahrschule-taym.de") return;
+
   const configuredUrl =
     process.env.NEXT_PUBLIC_APP_URL;
 

@@ -908,7 +908,11 @@ export async function POST(
           config.passwordHash,
           credentials.password
         );
-    } catch {
+    } catch (error) {
+      console.error(
+        "[TAYM_ADMIN_LOGIN] Hash verification error type:",
+        error instanceof Error ? error.name : "UNKNOWN"
+      );
       throw new Error(
         "PASSWORD_HASH_VERIFICATION_FAILED"
       );

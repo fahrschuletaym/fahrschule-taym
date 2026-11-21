@@ -219,32 +219,23 @@ function errorResponse(
 
 function getAllowedOrigins(): Set<string> {
   const origins = new Set<string>();
+  const isProduction = process.env.NODE_ENV === "production";
 
-  const configuredUrl =
-    process.env.NEXT_PUBLIC_APP_URL;
-
-  if (configuredUrl) {
-    origins.add(
-      new URL(configuredUrl).origin
-    );
-  } else if (
-    process.env.NODE_ENV === "production"
-  ) {
-    throw new Error(
-      "NEXT_PUBLIC_APP_URL is not configured."
-    );
+  if (isProduction) {
+    origins.add("https://fahrschule-taym.de");
+  } else {
+    origins.add("http://localhost:3000");
+    origins.add("http://127.0.0.1:3000");
   }
 
-  if (
-    process.env.NODE_ENV !== "production"
-  ) {
-    origins.add(
-      "http://localhost:3000"
-    );
-
-    origins.add(
-      "http://127.0.0.1:3000"
-    );
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl);
+      if (!isProduction || url.protocol === "https:") origins.add(url.origin);
+    } catch {
+      console.error("[TAYM][AUTH] Invalid NEXT_PUBLIC_APP_URL");
+    }
   }
 
   return origins;
