@@ -1802,6 +1802,14 @@ export default function ServicesContent() {
               />
 
               <ContactItem
+                label={`${contact.phoneLabel} (AT)`}
+                value={contact.austriaPhone}
+                href={contact.austriaPhoneHref}
+                icon={Phone}
+                ltr
+              />
+
+              <ContactItem
                 label={contact.emailLabel}
                 value={contact.email}
                 href={contact.emailHref}

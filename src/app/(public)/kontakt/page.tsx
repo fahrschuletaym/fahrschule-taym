@@ -900,7 +900,7 @@ export default function ContactContent() {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <ContactCard
             icon={MapPin}
             label={t.address}
@@ -914,6 +914,14 @@ export default function ContactContent() {
             label={t.phone}
             value={CONTACT.phoneDisplay}
             href={CONTACT.phoneHref}
+            action={t.call}
+          />
+
+          <ContactCard
+            icon={Phone}
+            label={`${t.phone} (AT)`}
+            value={CONTACT.austriaPhoneDisplay}
+            href={CONTACT.austriaPhoneHref}
             action={t.call}
           />
 

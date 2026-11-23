@@ -82,9 +82,9 @@ const OPERATOR = {
 
   country: "Deutschland",
 
-  phoneDisplay: "030 / 40 74 53 12",
+  phoneDisplay: "+49 176 39064254",
 
-  phoneE164: "+493040745312",
+  phoneE164: "+4917639064254",
 
   email: "info@fahrschuletaym.de",
 
@@ -721,6 +721,8 @@ export default function ImpressumContent() {
                 >
                   {OPERATOR.phoneDisplay}
                 </a>
+                <br />
+                <a href="tel:+4367858250295" dir="ltr" className="hover:text-green-800">+43 678 58250295</a>
               </InformationRow>
 
               <InformationRow

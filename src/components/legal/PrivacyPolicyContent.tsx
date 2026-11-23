@@ -986,6 +986,8 @@ export default function PrivacyPolicyContent() {
                 >
                   {CONTACT.phoneDisplay}
                 </a>
+                <br />
+                <a href={CONTACT.austriaPhoneHref} dir="ltr" className="font-semibold text-green-800 hover:underline">{CONTACT.austriaPhoneDisplay}</a>
               </p>
 
               <p>

@@ -215,9 +215,11 @@ export const SERVICES_CONTACT = {
   formattedAddress:
     "Ernststr. 57, D-13509 Berlin, Deutschland",
 
-  phoneDisplay: "030 / 40 74 53 12",
+  phoneDisplay: "+49 176 39064254",
+  austriaPhoneDisplay: "+43 678 58250295",
+  austriaPhoneHref: "tel:+4367858250295",
 
-  phoneE164: "+493040745312",
+  phoneE164: "+4917639064254",
 
   email: "info@fahrschule-taym.de",
 
@@ -225,7 +227,7 @@ export const SERVICES_CONTACT = {
     "mailto:info@fahrschule-taym.de",
 
   phoneHref:
-    "tel:+493040745312",
+    "tel:+4917639064254",
 
   /*
    * Hours must be verified before publication.
@@ -2140,6 +2142,9 @@ export function getServicesContact(
 
     phoneHref:
       SERVICES_CONTACT.phoneHref,
+
+    austriaPhone: SERVICES_CONTACT.austriaPhoneDisplay,
+    austriaPhoneHref: SERVICES_CONTACT.austriaPhoneHref,
 
     phoneLabel:
       text.phone,

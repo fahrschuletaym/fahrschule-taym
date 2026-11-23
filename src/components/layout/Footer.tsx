@@ -192,8 +192,8 @@ const translations: Record<Locale, FooterDictionary> = {
 
 const contactInfo = {
   address: "Ernststr. 57, D-13509 Berlin",
-  phoneDisplay: "030 / 40 74 53 12",
-  phoneHref: "tel:+493040745312",
+  phoneDisplay: "+49 176 39064254",
+  phoneHref: "tel:+4917639064254",
   email: "info@fahrschule-taym.de",
   emailHref: "mailto:info@fahrschule-taym.de",
 };
@@ -567,6 +567,11 @@ export default function Footer() {
                   >
                     {contactInfo.phoneDisplay}
                   </span>
+                </a>
+
+                <a href="tel:+4367858250295" className="taym-footer-contact-item">
+                  <span className="taym-footer-contact-icon"><Phone size={18} aria-hidden="true" /></span>
+                  <span className="taym-footer-contact-value" dir="ltr">+43 678 58250295</span>
                 </a>
 
                 <a

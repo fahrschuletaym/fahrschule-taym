@@ -1942,6 +1942,11 @@ export default function UeberUnsPage() {
                 </span>
               </a>
 
+              <a href={CONTACT.austriaPhoneHref} className="flex items-center gap-3 text-sm hover:text-lime-300">
+                <Phone size={20} className="shrink-0 text-lime-300" />
+                <span dir="ltr">{CONTACT.austriaPhoneDisplay}</span>
+              </a>
+
               <a
                 href={CONTACT.emailHref}
                 className="flex items-center gap-3 break-all text-sm hover:text-lime-300"

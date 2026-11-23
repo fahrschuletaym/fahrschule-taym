@@ -4840,7 +4840,8 @@ export default function DrivingLicenseApplicationPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_15rem]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
               {requiredDocuments.map(
                 (requirement) => (
                   <DocumentCard
@@ -4858,6 +4859,50 @@ export default function DrivingLicenseApplicationPage() {
                   />
                 )
               )}
+            </div>
+
+            <div className="rounded-xl border border-lime-200 bg-lime-50 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Info
+                  size={18}
+                  className="text-green-700"
+                />
+
+                <h3 className="text-sm font-bold text-green-950">
+                  {t.uploadHints}
+                </h3>
+              </div>
+
+              <div className="grid gap-2.5 text-xs leading-relaxed text-slate-700 sm:grid-cols-2">
+                {[
+                  `${t.allowedFormats}: PDF, JPG, PNG`,
+
+                  `${t.maxPerFile}: ${
+                    formatFileSize(
+                      requiredDocuments[0]?.maxSizeBytes ??
+                        10 * 1024 * 1024,
+                      locale
+                    )
+                  }`,
+
+                  t.readable,
+
+                  t.protected,
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-2"
+                  >
+                    <Check
+                      size={15}
+                      className="mt-0.5 shrink-0 text-green-700"
+                    />
+
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
             </div>
 
             {/* Existing complementary documents. */}
@@ -4914,48 +4959,6 @@ export default function DrivingLicenseApplicationPage() {
                 </div>
               ))}
 
-            <div className="mt-4 rounded-xl border border-lime-200 bg-lime-50 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Info
-                  size={18}
-                  className="text-green-700"
-                />
-
-                <h3 className="text-sm font-bold text-green-950">
-                  {t.uploadHints}
-                </h3>
-              </div>
-
-              <div className="grid gap-2.5 text-xs leading-relaxed text-slate-700 sm:grid-cols-2">
-                {[
-                  `${t.allowedFormats}: PDF, JPG, PNG`,
-
-                  `${t.maxPerFile}: ${
-                    formatFileSize(
-                      requiredDocuments[0]?.maxSizeBytes ??
-                        10 * 1024 * 1024,
-                      locale
-                    )
-                  }`,
-
-                  t.readable,
-
-                  t.protected,
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-start gap-2"
-                  >
-                    <Check
-                      size={15}
-                      className="mt-0.5 shrink-0 text-green-700"
-                    />
-
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
           </NumberedSection>
 
           {/* ================================================

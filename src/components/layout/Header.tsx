@@ -464,12 +464,17 @@ export default function Header() {
             </span>
 
             <a
-              href="tel:+493040745312"
+              href="tel:+4917639064254"
               className="taym-header-contact-item"
               dir="ltr"
             >
               <Phone size={14} aria-hidden="true" />
-              <span>030 / 40 74 53 12</span>
+              <span>+49 176 39064254</span>
+            </a>
+
+            <a href="tel:+4367858250295" className="taym-header-contact-item" dir="ltr">
+              <Phone size={14} aria-hidden="true" />
+              <span>+43 678 58250295</span>
             </a>
 
             <a
@@ -782,9 +787,14 @@ export default function Header() {
             {/* CONTACT MOBILE */}
 
             <div className="taym-header-mobile-contact">
-              <a href="tel:+493040745312">
+              <a href="tel:+4917639064254">
                 <Phone size={15} aria-hidden="true" />
-                <span dir="ltr">030 / 40 74 53 12</span>
+                <span dir="ltr">+49 176 39064254</span>
+              </a>
+
+              <a href="tel:+4367858250295">
+                <Phone size={15} aria-hidden="true" />
+                <span dir="ltr">+43 678 58250295</span>
               </a>
 
               <a href="mailto:info@fahrschule-taym.de">
