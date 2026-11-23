@@ -504,7 +504,7 @@ const TEXT = {
 
     missing: "Nicht hochgeladen",
     uploaded: "Hochgeladen",
-    ready: "Sicherheitsprüfung abgeschlossen",
+    ready: "Dokument hochgeladen",
     pending: "Prüfung ausstehend",
     rejected: "Dokument abgelehnt",
     failed: "Fehlgeschlagen",
@@ -563,7 +563,7 @@ const TEXT = {
     postalRequired: "Bitte geben Sie eine gültige Postleitzahl ein.",
     cityRequired: "Bitte geben Sie Ihre Stadt ein.",
     documentsRequired:
-      "Bitte laden Sie alle erforderlichen Dokumente hoch und warten Sie auf die Sicherheitsprüfung.",
+      "Bitte laden Sie alle erforderlichen Dokumente hoch.",
     confirmationsRequired:
       "Bitte bestätigen Sie beide Angaben.",
 
@@ -695,7 +695,7 @@ const TEXT = {
 
     missing: "لم يتم الرفع",
     uploaded: "تم الرفع",
-    ready: "اكتمل فحص الأمان",
+    ready: "تم رفع المستند",
     pending: "قيد الفحص",
     rejected: "تم رفض المستند",
     failed: "فشل",
@@ -754,7 +754,7 @@ const TEXT = {
     cityRequired: "يرجى إدخال اسم مدينتك.",
 
     documentsRequired:
-      "يرجى رفع جميع المستندات المطلوبة وانتظار اكتمال فحص الأمان.",
+      "يرجى رفع جميع المستندات المطلوبة.",
 
     confirmationsRequired:
       "يرجى تأكيد كلا الخيارين.",
@@ -889,7 +889,7 @@ const TEXT = {
 
     missing: "Yüklenmedi",
     uploaded: "Yüklendi",
-    ready: "Güvenlik kontrolü tamamlandı",
+    ready: "Belge yüklendi",
     pending: "Kontrol bekleniyor",
     rejected: "Belge reddedildi",
     failed: "Başarısız",
@@ -948,7 +948,7 @@ const TEXT = {
     cityRequired: "Şehrinizi girin.",
 
     documentsRequired:
-      "Gerekli tüm belgeleri yükleyin ve güvenlik kontrolünün tamamlanmasını bekleyin.",
+      "Gerekli tüm belgeleri yükleyin.",
 
     confirmationsRequired:
       "Lütfen her iki seçeneği onaylayın.",
@@ -1083,7 +1083,7 @@ const TEXT = {
 
     missing: "No subido",
     uploaded: "Subido",
-    ready: "Comprobación de seguridad completada",
+    ready: "Documento subido",
     pending: "Pendiente de comprobación",
     rejected: "Documento rechazado",
     failed: "Error",
@@ -1142,7 +1142,7 @@ const TEXT = {
     cityRequired: "Introduzca su ciudad.",
 
     documentsRequired:
-      "Suba todos los documentos requeridos y espere a que finalice la comprobación de seguridad.",
+      "Suba todos los documentos requeridos.",
 
     confirmationsRequired:
       "Confirme ambas opciones.",
@@ -2182,10 +2182,10 @@ function DocumentCard({
 
   return (
     <article
-      className={`flex min-w-0 flex-col rounded-xl border p-3 transition-colors ${
+      className={`flex min-w-0 flex-col rounded-xl border-2 p-3 shadow-sm transition-colors ${
         document?.ready
           ? "border-lime-300 bg-lime-50/40"
-          : "border-dashed border-slate-300 bg-slate-50/60"
+          : "border-dashed border-lime-600 bg-white"
       }`}
     >
       <div className="flex items-start gap-3 lg:flex-col lg:items-center lg:text-center">
@@ -2306,7 +2306,7 @@ function DocumentCard({
               type="button"
               disabled={disabled}
               onClick={() => inputRef.current?.click()}
-              className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-lime-600 bg-white px-2 py-2 text-xs font-bold text-green-800 transition-colors hover:bg-lime-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-700 px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploading ? (
                 <>
@@ -3514,7 +3514,7 @@ export default function DrivingLicenseApplicationPage() {
 
      Client checks are for usability.
      The server performs authoritative
-     binary validation and malware checks.
+     binary and size validation.
      ======================================================== */
 
   function validateFile(
@@ -4841,7 +4841,7 @@ export default function DrivingLicenseApplicationPage() {
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_15rem]">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {requiredDocuments.map(
                 (requirement) => (
                   <DocumentCard

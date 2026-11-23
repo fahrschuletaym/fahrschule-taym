@@ -670,59 +670,22 @@ function assertAllowedDocumentRequest(
     return;
   }
 
-  const allowedOrigins =
-    new Set<string>();
-
-  const configuredUrl =
-    process.env.NEXT_PUBLIC_APP_URL;
-
+  const allowedOrigins = new Set<string>();
+  const isProduction = process.env.NODE_ENV === "production";
+  if (isProduction) {
+    allowedOrigins.add("https://fahrschule-taym.de");
+  } else {
+    allowedOrigins.add("http://localhost:3000");
+    allowedOrigins.add("http://127.0.0.1:3000");
+  }
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (configuredUrl) {
     try {
-      const appUrl =
-        new URL(configuredUrl);
-
-      if (
-        process.env.NODE_ENV ===
-          "production" &&
-
-        appUrl.protocol !== "https:"
-      ) {
-        throw new Error(
-          "HTTPS required."
-        );
-      }
-
-      allowedOrigins.add(
-        appUrl.origin
-      );
-
+      const url = new URL(configuredUrl);
+      if (!isProduction || url.protocol === "https:") allowedOrigins.add(url.origin);
     } catch {
-      throw new DocumentAccessError(
-        "SERVICE_UNAVAILABLE",
-        503
-      );
+      console.error("[TAYM][DOCUMENTS] Invalid NEXT_PUBLIC_APP_URL");
     }
-  } else if (
-    process.env.NODE_ENV ===
-    "production"
-  ) {
-    throw new DocumentAccessError(
-      "SERVICE_UNAVAILABLE",
-      503
-    );
-  }
-
-  if (
-    process.env.NODE_ENV !==
-    "production"
-  ) {
-    allowedOrigins.add(
-      "http://localhost:3000"
-    );
-
-    allowedOrigins.add(
-      "http://127.0.0.1:3000"
-    );
   }
 
   if (!allowedOrigins.has(origin)) {

@@ -751,52 +751,23 @@ function getRequestLocale(
 
 function getAllowedOrigins(): Set<string> {
   const origins = new Set<string>();
+  const isProduction = process.env.NODE_ENV === "production";
 
-  const configuredUrl =
-    process.env.NEXT_PUBLIC_APP_URL;
-
-  if (configuredUrl) {
-    try {
-      const url =
-        new URL(configuredUrl);
-
-      if (
-        process.env.NODE_ENV === "production" &&
-        url.protocol !== "https:"
-      ) {
-        throw new Error(
-          "Production HTTPS required."
-        );
-      }
-
-      origins.add(url.origin);
-
-    } catch {
-      throw new ApplicationRequestError(
-        "SERVICE_UNAVAILABLE",
-        503
-      );
-    }
-
-  } else if (
-    process.env.NODE_ENV === "production"
-  ) {
-    throw new ApplicationRequestError(
-      "SERVICE_UNAVAILABLE",
-      503
-    );
+  if (isProduction) {
+    origins.add("https://fahrschule-taym.de");
+  } else {
+    origins.add("http://localhost:3000");
+    origins.add("http://127.0.0.1:3000");
   }
 
-  if (
-    process.env.NODE_ENV !== "production"
-  ) {
-    origins.add(
-      "http://localhost:3000"
-    );
-
-    origins.add(
-      "http://127.0.0.1:3000"
-    );
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl);
+      if (!isProduction || url.protocol === "https:") origins.add(url.origin);
+    } catch {
+      console.error("[TAYM][APPLICATION] Invalid NEXT_PUBLIC_APP_URL");
+    }
   }
 
   return origins;

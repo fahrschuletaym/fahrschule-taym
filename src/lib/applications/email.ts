@@ -356,17 +356,20 @@ function getApplicationBaseUrl(): string {
   const configuredUrl =
     process.env.NEXT_PUBLIC_APP_URL;
 
-  if (!configuredUrl) {
-    if (
-      process.env.NODE_ENV !==
-      "production"
-    ) {
-      return "http://localhost:3000";
+  if (process.env.NODE_ENV === "production") {
+    try {
+      const url = new URL(configuredUrl || "");
+      if (url.protocol === "https:" && !url.username && !url.password) {
+        return url.origin;
+      }
+    } catch {
+      // Use the official site when the deployment URL is absent or invalid.
     }
+    return "https://fahrschule-taym.de";
+  }
 
-    throw new ApplicationEmailError(
-      "INVALID_APP_URL"
-    );
+  if (!configuredUrl) {
+    return "http://localhost:3000";
   }
 
   let url: URL;
@@ -385,12 +388,6 @@ function getApplicationBaseUrl(): string {
     url.password ||
     !["http:", "https:"].includes(
       url.protocol
-    ) ||
-    (
-      process.env.NODE_ENV ===
-        "production" &&
-
-      url.protocol !== "https:"
     )
   ) {
     throw new ApplicationEmailError(

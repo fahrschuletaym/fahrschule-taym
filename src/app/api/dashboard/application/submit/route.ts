@@ -639,63 +639,25 @@ function getRequestLocale(
    Uses existing environment variables.
    ============================================================ */
 
-function getAllowedOrigins():
-  Set<string> {
-  const origins =
-    new Set<string>();
+function getAllowedOrigins(): Set<string> {
+  const origins = new Set<string>();
+  const isProduction = process.env.NODE_ENV === "production";
 
-  const configuredUrl =
-    process.env.NEXT_PUBLIC_APP_URL;
-
-  if (configuredUrl) {
-    let url: URL;
-
-    try {
-      url = new URL(
-        configuredUrl
-      );
-    } catch {
-      throw new SubmitRequestError(
-        "SERVICE_UNAVAILABLE",
-        503
-      );
-    }
-
-    if (
-      process.env.NODE_ENV ===
-        "production" &&
-
-      url.protocol !== "https:"
-    ) {
-      throw new SubmitRequestError(
-        "SERVICE_UNAVAILABLE",
-        503
-      );
-    }
-
-    origins.add(url.origin);
-
-  } else if (
-    process.env.NODE_ENV ===
-    "production"
-  ) {
-    throw new SubmitRequestError(
-      "SERVICE_UNAVAILABLE",
-      503
-    );
+  if (isProduction) {
+    origins.add("https://fahrschule-taym.de");
+  } else {
+    origins.add("http://localhost:3000");
+    origins.add("http://127.0.0.1:3000");
   }
 
-  if (
-    process.env.NODE_ENV !==
-    "production"
-  ) {
-    origins.add(
-      "http://localhost:3000"
-    );
-
-    origins.add(
-      "http://127.0.0.1:3000"
-    );
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl);
+      if (!isProduction || url.protocol === "https:") origins.add(url.origin);
+    } catch {
+      console.error("[TAYM][APPLICATION] Invalid NEXT_PUBLIC_APP_URL");
+    }
   }
 
   return origins;

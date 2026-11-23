@@ -262,6 +262,13 @@ function hasValidOrigin(
     return false;
   }
 
+  if (
+    process.env.NODE_ENV === "production" &&
+    origin === "https://fahrschule-taym.de"
+  ) {
+    return true;
+  }
+
   const expected =
     process.env.NEXT_PUBLIC_APP_URL ||
     request.nextUrl.origin;
